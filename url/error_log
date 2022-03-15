@@ -1,0 +1,8 @@
+[23-Oct-2021 11:04:00 UTC] PHP Fatal error:  Uncaught Error: Class 'GuzzleHttp\Client' not found in /home/lautechp/apply.lautech.edu.ng/url/index.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/lautechp/apply.lautech.edu.ng/url/index.php on line 20
+[23-Oct-2021 14:48:00 UTC] PHP Fatal error:  Uncaught Error: Class 'GuzzleHttp\Client' not found in /home/lautechp/apply.lautech.edu.ng/url/index.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/lautechp/apply.lautech.edu.ng/url/index.php on line 20
