@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Config;
 use App\User;
+use App\SchoolInfo;
 use App\BiodataUpdateLogger;
 use App\Interfaces\DocumentRepositoryInterface;
 use Illuminate\Http\JsonResponse;
@@ -125,7 +126,20 @@ class AppApiController extends Controller
                                                                 'email'=>$item->kinemail,
                                                                 'address'=>$item->kinaddress                                              
                                                 ]);
-
+                $ck = DB::table('schoolinfo')
+                                            ->where('matricno', $mat->matricno)
+                                            ->where('name', $item->school->name)
+                                            ->where('startdate', $item->school->from_date)
+                                            ->first();
+                   if(!$ck)
+                    {
+                        $sch = new SchoolInfo();
+                        $sch->matricno  =    $mat->matricno;
+                        $sch->name      =    $item->school->name;
+                        $sch->startdate =    $item->school->from_date;
+                        $sch->enddate   =    $item->school->to_date;
+                        $sch->save();
+                    }
 
                 }
                
