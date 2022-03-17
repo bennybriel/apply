@@ -103,12 +103,28 @@ class AppApiController extends Controller
                     {
                         ++$nc;
                     }
-                    #Update Biodata Information
-                     
-                    $up = DB::table('u_g_pre_admission_regs')->where('matric', $item->matric)
-                    ->update(['surname'=>1,
-                              'othername'=>2,
-                               ]);
+                    #Update Biodata Informatio
+                    $mat = DB::table('users')->where('matric', $item->matricno)->first();
+
+                    $up = DB::table('u_g_pre_admission_regs')->where('matric', $item->matricno)
+                              ->update(['surname'=>$item->surname,
+                                        'firstname'=>$item->firstname,
+                                        'othername'=>$item->othername,
+                                        'dob'=>$item->dob,
+                                        'state'=>$item->state,
+                                        'lga'=>$item->lga,
+                                        'town'=>$item->town,
+                                        'address'=>$item->address
+                                       ]);
+                    #Parent info
+                    $pa = DB::table('u_g_parent_infos')->where('matricno', $mat->matricno)
+                                                      ->update(['surname'=>$item->kinName,
+                                                                'othername'=>$item->kinName,
+                                                                'relation'=>$item->kinrelationship,
+                                                                'phone'=>$item->kinphone,
+                                                                'email'=>$item->kinemail,
+                                                                'address'=>$item->kinaddress                                              
+                                                ]);
 
 
                 }

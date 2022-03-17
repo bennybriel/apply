@@ -45,12 +45,14 @@
                                                                     <tr>
                                                                         <th>SN</th>
                                                                         <th>TicketID</th>
+                                                                        <th>File</th>
                                                                         <th>Name</th>
                                                                         <th>Matricno</th>
                                                                         <th>Complain</th>
                                                                         <th>Status</th>
                                                                         <th>Application</th>
                                                                         <th>Category</th>
+
                                                                         <th>Action</th>
                                                                     </tr>
                                                                 </tfoot>
@@ -62,11 +64,21 @@
                                                                         <tr>
                                                                             <td>{{ ++$i }}</td>
                                                                             <td>
+                                                                              @if($data->filepath!=null)
+                                                                                    <a href="{{ route('admissionLetterUGD') }}" class="btn btn-success">
+                                                                                      <span class="text">Download </span>
+                                                                                  </a>
+                                                                               @else
+                                                                                  <span style="color:green">No File</span>
+                                                                                @endif
+                                                                             </td>
+                                                                            <td>
                                                                              
                                                                               <button type="button" class="btn btn-primary" id="editreply-item" data-item-ids="{{ $data->ticketid }}" data-item-emails="{{ $data->email }}" 
                                                                                   data-item-names="{{ GetName($data->email) }}" data-item-portals="{{ $data->portal }}" data-item-subjects="{{ $data->subject }}"
                                                                                   data-item-complains="{{ $data->complain }}" >{{ $data->ticketid }}</button> 
                                                                             </td>
+                                                                          
                                                                             <td>{{ GetName($data->email) }}</td>
                                                                             <td>
                                                                                 <a href="" data-toggle="modal"  data-target-id="{{  GetMatricno($data->email) }}"  data-target="#myModalview" style="background:#c0a062;color:#FFF" class="btn" >{{ GetMatricno($data->email) }}</a>

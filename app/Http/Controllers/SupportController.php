@@ -175,15 +175,22 @@ class SupportController extends Controller
             $application=$request->application;
             $subject=$request->subject;
             $complains=$request->complains;
+            $datafile = $request->datafile;
             $id = substr(mt_rand(1, 9999).mt_rand(1, 999999).mt_rand(1, 999999), 1,7);
             $ticketid  =date("dmY").$id;
-            $filepath=0;
+           // $filepath=0;
             if($complains=="")
             {
                 return back()->with('error', 'Operation Failed, Complains Required');
             }
+            $input['imagename'] = $ticketid.'.'.$file_path->getClientOriginalExtension();
+            $destinationPath = public_path('/Support/');
+            $file_path->move($destinationPath, $input['imagename']);
+            $imgP=$input['imagename'];
+            $photo=$imgP;
+
              $sav = DB::INSERT('CALL SaveTicket(?,?,?,?,?,?,?,?)',
-             array($email,$ticketid,$category,$application,$portal,$subject,$complains,$filepath));
+             array($email,$ticketid,$category,$application,$portal,$subject,$complains,$photo));
              $admin_email ="golamiji@lautech.edu.ng";
              $receiver = 
              [
@@ -193,6 +200,9 @@ class SupportController extends Controller
             
              if($sav)
              {
+
+
+
                 //Send Email
                             $parameters =
                             '{
