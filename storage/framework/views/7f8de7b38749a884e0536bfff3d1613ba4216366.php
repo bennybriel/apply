@@ -1,7 +1,7 @@
-@extends('layouts.appdashboard')
-@section('content')
 
-<meta name="csrf-token" content="{{ csrf_token() }}" />
+<?php $__env->startSection('content'); ?>
+
+<meta name="csrf-token" content="<?php echo e(csrf_token()); ?>" />
 <div class="card o-hidden border-0 shadow-lg my-5">
             <div class="card-body p-0">
                 <!-- Nested Row within Card Body -->
@@ -16,7 +16,7 @@
 
 
 
-                                        @if($data)
+                                        <?php if($data): ?>
                                                <div class="card shadow mb-4">
                                                     <div class="card-header py-3">
                                                         <h6 class="m-0 font-weight-bold" style="color:#da251d">Tickets</h6>
@@ -60,59 +60,59 @@
                                                                 <?php
                                                                     $i=0;
                                                                     ?>
-                                                                    @foreach($data as $data)
+                                                                    <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                                         <tr>
-                                                                            <td>{{ ++$i }}</td>
+                                                                            <td><?php echo e(++$i); ?></td>
                                                                             <td>
-                                                                              @if($data->filepath!=null)
-                                                                                    <a href="{{ route('DownloadTicketFile',$data->filepath) }}" class="btn btn-success">
+                                                                              <?php if($data->filepath!=null): ?>
+                                                                                    <a href="<?php echo e(route('DownloadTicketFile',$data->filepath)); ?>" class="btn btn-success">
                                                                                       <span class="text">Download </span>
                                                                                   </a>
-                                                                               @else
+                                                                               <?php else: ?>
                                                                                   <span style="color:green">No File</span>
-                                                                                @endif
+                                                                                <?php endif; ?>
                                                                              </td>
                                                                             <td>
                                                                              
-                                                                              <button type="button" class="btn btn-primary" id="editreply-item" data-item-ids="{{ $data->ticketid }}" data-item-emails="{{ $data->email }}" 
-                                                                                  data-item-names="{{ GetName($data->email) }}" data-item-portals="{{ $data->portal }}" data-item-subjects="{{ $data->subject }}"
-                                                                                  data-item-complains="{{ $data->complain }}" >{{ $data->ticketid }}</button> 
+                                                                              <button type="button" class="btn btn-primary" id="editreply-item" data-item-ids="<?php echo e($data->ticketid); ?>" data-item-emails="<?php echo e($data->email); ?>" 
+                                                                                  data-item-names="<?php echo e(GetName($data->email)); ?>" data-item-portals="<?php echo e($data->portal); ?>" data-item-subjects="<?php echo e($data->subject); ?>"
+                                                                                  data-item-complains="<?php echo e($data->complain); ?>" ><?php echo e($data->ticketid); ?></button> 
                                                                             </td>
                                                                           
-                                                                            <td>{{ GetName($data->email) }}</td>
+                                                                            <td><?php echo e(GetName($data->email)); ?></td>
                                                                             <td>
-                                                                                <a href="" data-toggle="modal"  data-target-id="{{  GetMatricno($data->email) }}"  data-target="#myModalview" style="background:#c0a062;color:#FFF" class="btn" >{{ GetMatricno($data->email) }}</a>
+                                                                                <a href="" data-toggle="modal"  data-target-id="<?php echo e(GetMatricno($data->email)); ?>"  data-target="#myModalview" style="background:#c0a062;color:#FFF" class="btn" ><?php echo e(GetMatricno($data->email)); ?></a>
                          
                                                                             </td>
-                                                                            <td>{{ $data->complain }}</td>
+                                                                            <td><?php echo e($data->complain); ?></td>
                                                                             <td>
-                                                                               @if($data->status=='0')
+                                                                               <?php if($data->status=='0'): ?>
                                                                                  <span style="color:red">Pending</span>
-                                                                               @else
+                                                                               <?php else: ?>
                                                                                <span style="color:green">Resolved</span>
-                                                                               @endif
+                                                                               <?php endif; ?>
                                                                               </td>
-                                                                            <td>{{ $data->appid }}</td>
-                                                                            <td>{{ $data->category }}</td>
+                                                                            <td><?php echo e($data->appid); ?></td>
+                                                                            <td><?php echo e($data->category); ?></td>
                                                                            
                                                                              <td>
-                                                                             @if($data->status=='0')
-                                                                                  <button type="button" class="btn btn-success" id="edit-item" data-item-id="{{ $data->ticketid }}" data-item-email="{{ $data->email }}" 
-                                                                                  data-item-name="{{ GetName($data->email) }}" data-item-portal="{{ $data->portal }}" data-item-subject="{{ $data->subject }}"
-                                                                                  data-item-complain="{{ $data->complain }}" >Reply</button>                                                                             
-                                                                            @else
+                                                                             <?php if($data->status=='0'): ?>
+                                                                                  <button type="button" class="btn btn-success" id="edit-item" data-item-id="<?php echo e($data->ticketid); ?>" data-item-email="<?php echo e($data->email); ?>" 
+                                                                                  data-item-name="<?php echo e(GetName($data->email)); ?>" data-item-portal="<?php echo e($data->portal); ?>" data-item-subject="<?php echo e($data->subject); ?>"
+                                                                                  data-item-complain="<?php echo e($data->complain); ?>" >Reply</button>                                                                             
+                                                                            <?php else: ?>
                                                                             <span style="color:red">Closed</span>
-                                                                            @endif
+                                                                            <?php endif; ?>
                                                                             </td>
                                                                    
                                                                         </tr>
-                                                                    @endforeach
+                                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                                 </tbody>
                                                             </table>
                                                         </div>
                                                     </div>
                                                 </div>
-                                             @endif
+                                             <?php endif; ?>
 
                                              
 
@@ -137,27 +137,30 @@
       </div>
       <div class="modal-body" id="attachment-body-content">
       
-        <form  class="form-horizontal" id="edit-form" method="POST" action="{{ route('ReplyTicket') }}">
-           {{ csrf_field() }}
-           @if(Session::has('error'))
+        <form  class="form-horizontal" id="edit-form" method="POST" action="<?php echo e(route('ReplyTicket')); ?>">
+           <?php echo e(csrf_field()); ?>
+
+           <?php if(Session::has('error')): ?>
                      <div class="alert alert-danger">
-                         {{ Session::get('error') }}
-                          @php
+                         <?php echo e(Session::get('error')); ?>
+
+                          <?php
                            Session::forget('error');
-                          @endphp
+                          ?>
                     </div>
-                @endif
-                @if(Session::has('success'))
+                <?php endif; ?>
+                <?php if(Session::has('success')): ?>
                     <div class="alert alert-success">
-                     {{ Session::get('success') }}
-                     @php
+                     <?php echo e(Session::get('success')); ?>
+
+                     <?php
                         Session::forget('success');
-                     @endphp
+                     ?>
                    </div>
                   <?php
                                                            // $memberID = session('memberID');
                    ?>
-                 @endif
+                 <?php endif; ?>
           <div class="card text-black bg-white mb-0">
             <div class="card-header">
               <h2 class="m-0" style="color:brown">Reply Ticket</h2>
@@ -236,27 +239,30 @@
       </div>
       <div class="modal-body" id="attachment-body-content">
       
-        <form  class="form-horizontal" id="edit-form" method="POST" action="{{ route('ReplyTickets') }}">
-           {{ csrf_field() }}
-           @if(Session::has('error'))
+        <form  class="form-horizontal" id="edit-form" method="POST" action="<?php echo e(route('ReplyTickets')); ?>">
+           <?php echo e(csrf_field()); ?>
+
+           <?php if(Session::has('error')): ?>
                      <div class="alert alert-danger">
-                         {{ Session::get('error') }}
-                          @php
+                         <?php echo e(Session::get('error')); ?>
+
+                          <?php
                            Session::forget('error');
-                          @endphp
+                          ?>
                     </div>
-                @endif
-                @if(Session::has('success'))
+                <?php endif; ?>
+                <?php if(Session::has('success')): ?>
                     <div class="alert alert-success">
-                     {{ Session::get('success') }}
-                     @php
+                     <?php echo e(Session::get('success')); ?>
+
+                     <?php
                         Session::forget('success');
-                     @endphp
+                     ?>
                    </div>
                   <?php
                                                            // $memberID = session('memberID');
                    ?>
-                 @endif
+                 <?php endif; ?>
           <div class="card text-black bg-white mb-0">
             <div class="card-header">
               <h2 class="m-0" style="color:brown">Reply Ticket</h2>
@@ -502,7 +508,7 @@ $(document).ready(function(){
 
 
 
-@endsection
+<?php $__env->stopSection(); ?>
 
 <?php 
    function GetName($ema)
@@ -530,3 +536,4 @@ $(document).ready(function(){
         }
    }
 ?>
+<?php echo $__env->make('layouts.appdashboard', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\xampp\htdocs\apply\resources\views/ticketList.blade.php ENDPATH**/ ?>

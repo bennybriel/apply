@@ -10,6 +10,26 @@ use Illuminate\Support\Facades\DB;
 class SupportController extends Controller
 {
     //
+   public function DownloadTicketFile($tkfile)
+    {
+        $tk=DB::table('tickets')->where('filepath',$tkfile)->first();
+        if($tk)
+        {
+            $filePath =public_path('/Support/'.$tk->filepath);
+            $headers = ['Content-Type: application/pdf'];
+            $fileName = time().'.pdf';
+            return response()->download($filePath, $fileName, $headers);
+        }
+        else
+        {
+            return back()->with('error', 'Operation Failed, File Not Found');
+        }
+       
+
+    
+       // $file = Storage::disk('public')->get($file_name);
+       // return (new Response($file, 200))->header('Content-Type', 'image/jpeg');
+    }
     public function RepliedEmails($email,$ticketid,$res)
     {
         $res = strtoupper($res);
@@ -183,9 +203,9 @@ class SupportController extends Controller
             {
                 return back()->with('error', 'Operation Failed, Complains Required');
             }
-            $input['imagename'] = $ticketid.'.'.$file_path->getClientOriginalExtension();
+            $input['imagename'] = $ticketid.'.'.$datafile->getClientOriginalExtension();
             $destinationPath = public_path('/Support/');
-            $file_path->move($destinationPath, $input['imagename']);
+            $datafile->move($destinationPath, $input['imagename']);
             $imgP=$input['imagename'];
             $photo=$imgP;
 

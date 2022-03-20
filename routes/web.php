@@ -448,6 +448,8 @@ Route::get('/PDSPayNow/{id}/{prod}/{sid}/{prefix}', [App\Http\Controllers\MyPaym
 Route::get('/StudentDressCode', [App\Http\Controllers\PrintReportController::class, 'StudentDressCode'])->name('studentDressCode');
 Route::get('/StudentOath', [App\Http\Controllers\PrintReportController::class, 'StudentOath'])->name('studentOath');
 Route::get('/StateIdentityUGD', [App\Http\Controllers\PrintReportController::class, 'StateIdentityUGD'])->name('stateIdentityUGD');
+#DownloadTicketFile
+Route::get('/DownloadTicketFile/{tkfile}', [App\Http\Controllers\SupportController::class, 'DownloadTicketFile'])->name('DownloadTicketFile');
 
 
 
