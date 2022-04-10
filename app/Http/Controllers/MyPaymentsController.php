@@ -138,13 +138,14 @@ class MyPaymentsController extends Controller
 
             $headers = array(
                 "token: funda123",
+                'User-Agent:PostmanRuntime/7.29.0'
             );
             DB::INSERT('CALL SaveRequestLogger(?)',array(json_encode($parameters)));
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
             $resp = curl_exec($curl);
             curl_close($curl);
            
-            //var_dump($resp);
+            var_dump($resp);
             DB::INSERT('CALL SaveRequestLogger(?)',array($resp));
             $res = json_decode($resp);
             //dd($res);
@@ -921,24 +922,27 @@ class MyPaymentsController extends Controller
     }
     public function QueryTransactioning($id)
     {
-        if (Auth::check()) {
-            $matricno = Auth::user()->matricno;
+        if (Auth::check()) 
+        {
+            $id = len($id);
+            if($id > 15 || $id < 15)
+            {
+                  return view('logon');
+            }
 
+            $matricno = Auth::user()->matricno;
             $client = new \GuzzleHttp\Client;
             $yr =date("Y");
-           // dd($id);
-            try {
+            try 
+            {
                 $client = new \GuzzleHttp\Client();
                 $url = config('paymentUrl.trans_status_url') . $id;
                 DB::INSERT('CALL SaveRequestLogger(?)',array($url));
                 //dd($url);
                 $response = $client->request('GET', $url, ['verify' => false, 'headers' => ['token' => 'funda123']]);
-
-              
-                if ($response->getStatusCode() == 200) {
-                    // $response = json_decode($guzzleResponse->getBody(),true);
+                if ($response->getStatusCode() == 200) 
+                {
                     $res = json_decode($response->getBody());
-
                     DB::INSERT('CALL SaveRequestLogger(?)',array(json_encode($res)));
                     //perform your action with $response 
                 }
@@ -1124,6 +1128,7 @@ class MyPaymentsController extends Controller
             );
             DB::INSERT('CALL SaveRequestLogger(?)',array(json_encode($parameters)));
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+           // dd($resp);
             $resp = curl_exec($curl);
             curl_close($curl);
            

@@ -30,7 +30,8 @@ Route::prefix('v1')->group(function()
   Route::get('/GetStudentPaymentInfoByMatricno/{mat}', [App\Http\Controllers\AppApiController::class, 'GetStudentPaymentInfoByMatricno'])->name('GetStudentPaymentInfoByMatricno');
   #UpdateStudentBiodataInfo
   Route::post('/UpdateStudentBiodataInfo', [App\Http\Controllers\AppApiController::class, 'UpdateStudentBiodataInfo'])->name('UpdateStudentBiodataInfo');
- 
+  Route::get('/UpdateMatriculationNumber/{mat}', [App\Http\Controllers\AppApiController::class, 'UpdateMatriculationNumber'])->name('UpdateMatriculationNumber');
+  #UpdateMatriculationNumber
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {

@@ -450,6 +450,10 @@ Route::get('/StudentOath', [App\Http\Controllers\PrintReportController::class, '
 Route::get('/StateIdentityUGD', [App\Http\Controllers\PrintReportController::class, 'StateIdentityUGD'])->name('stateIdentityUGD');
 #DownloadTicketFile
 Route::get('/DownloadTicketFile/{tkfile}', [App\Http\Controllers\SupportController::class, 'DownloadTicketFile'])->name('DownloadTicketFile');
+#updateParentInfo
+Route::get('/UpdateParentInfo/{mat}', [App\Http\Controllers\UpdatesController::class, 'UpdateParentInfo'])->name('updateParentInfo');
+#UpdateParentData
+Route::post('/UpdateParentData', [App\Http\Controllers\UpdatesController::class, 'UpdateParentData'])->name('UpdateParentData');
 
 
 

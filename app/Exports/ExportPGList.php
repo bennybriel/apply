@@ -32,10 +32,12 @@ class ExportPGList implements FromQuery,WithHeadings
     {
         //return UGPreAdmissionReg::query();
         /*you can use condition in query to get required result*/
-        return  PGRegistered::query()->select('formnumber','name','programme','course','degree')
-                                        
-                                         ->orderby('formnumber','asc')
-                                         ->orderby('degree','asc');
+         // $p = DB::table('pgprogramme')->where('programmeid', $this->prog)->first();
+          //dd($this->prog);
+          return  PGRegistered::query()->select('formnumber','name','programme','course','degree')
+                                          ->where('departmentid',$this->prog)
+                                          ->orderby('formnumber','asc')
+                                          ->orderby('degree','asc');
     }
     public function map($apl): array
     {

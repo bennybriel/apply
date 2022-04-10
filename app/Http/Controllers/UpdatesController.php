@@ -12,9 +12,59 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\resetEmail;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use App\UGParentInfo;
 class UpdatesController extends Controller
 {
     //
+    public function UpdateParentData(Request $request)
+    {
+        if($request)
+        {
+                $parent = new UGParentInfo();
+                $parent->utme   = "Null";
+                $parent->surname   = $request->psurname;
+                $parent->othername = $request->pfirstname;
+                $parent->email     = $request->pemail;
+                $parent->phone     = $request->pphone;
+                $parent->address   = $request->paddress;
+                $parent->relation  = $request->relation;
+                $parent->guid      = Str::uuid();
+                $parent->status    = 1;
+                $parent->matricno  = $request->matricno;
+                $parent->save();
+        }
+    }
+    public function UpdateParentInfo($mat)
+    {
+            if($mat)
+            {
+                $dat = DB::table('u_g_parent_infos')->where('matricno',$mat)->first();
+                if($dat)
+                {
+                    ///return view('updateParentInfo', ['data'=>$data]);
+                    return view('logon');
+                }
+                else
+                {
+                     $data = DB::table('users')->where('matricno',$mat)->first();
+                     if($data)
+                     {
+                        return view('updateParentInfo', ['data'=>$data, 'mat'=>$mat]);
+                     }
+                     else
+                     {
+                        return back()->with('error','Record Not Found, Please Try Again');
+                     }
+                   
+                   //
+                }
+               
+            }
+            else
+            {
+                return back()->with('error','Matriculation Number Not Found, Please Try Again');
+            }
+    }
     public function UpdateStudentInfo()
     {
         $usr = Auth::user()->usertype;

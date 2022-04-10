@@ -170,15 +170,17 @@ class PrintReportController extends Controller
     }
     public function DownloadPGList(Request $request)
     {
-        $usr = Auth::user()->usertype;
+        $usr = Auth::user()->usertype; $res="";
         if(Auth::check() && $usr=='Staff' || $usr=='Admin')
         {
             $d = date('d-m-Y,h-m-s');
             $uuid = Str::uuid()->toString() . Str::uuid()->toString();
             $programme = $request->programme;
-            //$p = DB::table('pgprogramme')->where('programme',$programme)->first();
+         
+            $p = DB::table('pgdepartment')->where('departmentid',$programme)->first();
+            //$p = DB::table('pgprogramme')->where('programmeid',$programme)->first();
            
-            if($programme)
+            if($p)
             {
               $pg =DB::table('users as us')
                       ->select('us.formnumber','us.matricno','category1',
@@ -187,37 +189,55 @@ class PrintReportController extends Controller
                       ->join('u_g_pre_admission_regs as rg','rg.matricno','=','us.matricno')
                       ->where('us.apptype','PG')
                       ->where('formnumber','<>',"")
-                      ->where('rg.departmentid',$programme)
                       ->where('ispaid','=',"1")
                       ->get();
+              
+                  // dd($programme);
                 DB::table('pgregistered')->delete();
                 foreach($pg as $data)
                 {
-
+                  
                     $ck  = DB::table('pgregistered')->where('formnumber',$data->formnumber)->first();
                     if(!$ck)
                     {
                         $ps = DB::table('pgprogramme')->where('programmeid',$data->category1)->first();
+                    
                         $pgreg = new PGRegistered;
                         if($ps)
                         {
+                           // $did = $ps->departmentid;
                             $pgreg->name         =   $data->name;
                             $pgreg->course       =   $ps->programme;
                             $pgreg->programme    =   $ps->programme;
                             $pgreg->formnumber   =   $data->formnumber;
                             $pgreg->matricno     =   $data->matricno;
                             $pgreg->degree       =   $ps->degree;
+                            $pgreg->programmeid  =   $ps->programmeid;
+                            $pgreg->departmentid  =  $ps->departmentid;
                             $pgreg->save();
                         }
                     }
                 }
 
-              return Excel::download(new ExportPGList($programme), "PGList".$programme.$uuid.'.xlsx');
+              //dd($p->programmeid);
+              return Excel::download(new ExportPGList($programme), "PGList".$p->department.$uuid.'.xlsx');
             } 
         }
         else
         {
             return view('logon');
+        }
+    }
+    public function GetDepartment($dept)
+    {
+        $p = DB::table('pgdepartment')->where('departmentid',$dept)->first();
+        if($p)
+        {
+            return $p->departmemt;
+        }
+        else
+        {
+            return 0;
         }
     }
     public function PGApplicantList()

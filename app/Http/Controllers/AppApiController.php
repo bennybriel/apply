@@ -17,6 +17,114 @@ use Illuminate\Http\Response;
 use App\UGRegistrationProgress;
 class AppApiController extends Controller
 {
+    public function UpdateMatriculationNumber($mat)
+    {
+        return $mat;
+                       $utme = "";    
+                       $apptype = "UGD";
+                       $isadm = 1;
+                       $progid ="";
+                       $uuid = Str::uuid()->toString().Str::uuid()->toString();
+                       $url  = config('paymentUrl.matricno_url'); 
+                       $std  = DB::SELECT('CALL GetMatricNoInformation(?)',array($mat));
+                       if($std)
+                       {
+                          //Get Programme ID 
+                          if($std)  //($response->getStatusCode() == 200) 
+                          {    
+                                $utme  = $std[0]->utme; 
+                               
+                                if($std[0]->lga)
+                                 {
+                                    $lga=$std[0]->lga;
+                                 }
+                                 else
+                                 {
+                                  $lga ="None";
+                                 }
+                                 
+                                //dd($std[0]->phone);
+                                 $parameters =
+                                   '{
+                                        "firstname":"'.$std[0]->firstname.'",
+                                        "surname": "'.$std[0]->surname.'",
+                                        "othername":"'.$std[0]->othername.'",
+                                        "gender" :  "'.$std[0]->gender.'",
+                                        "lga" :"'.$std[0]->lga.'",
+                                        "state" : "'.$std[0]->state.'",
+                                        "nationality":"Nigeria",
+                                        "department_id":"'.$std[0]->departmentid.'",
+                                        "admission_mode":"UTME",
+                                        "marital_status" : "'.$std[0]->maritalstatus.'",
+                                        "religion":  "'.$std[0]->religion.'",
+                                        "email":     "'.$std[0]->email.'",
+                                        "phone":     "'.$std[0]->phone.'",
+                                        "admission_yr":"'.$std[0]->admissionyear.'",
+                                        "level":"'.$std[0]->level.'"   
+                                    }';
+                            
+                                $ch = curl_init();
+                                curl_setopt($ch, CURLOPT_URL,"https://ldaas.lautech.edu.ng/api/students/generate-matric-no");
+                                curl_setopt($ch, CURLOPT_POST, 1);
+                                curl_setopt($ch, CURLOPT_POSTFIELDS,$parameters);  //Post Fields
+                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                                $headers = array();
+                                $headers[] = 'Accept: application/json';
+                                $headers[] = 'Content-Type: application/json';
+                                $headers[] = 'Access-Token:zh8o1sxdIp0xHatJAmeFHQEXmTmGzped6xhTipZ1b72uEGRsafQjvyomIivg43s6';
+                                $headers[] = 'App-Token:eyJOPb1aSSJVOlOBpyUo1u2OK9f2phyH4kdK.eyJ4K96nRJEG0Eqr3NotAXNsci49SXPnMEpdsTB87frPgfa4ZdlOorN.UnM2fdjqgltKb5TuuOL4B3b1a72Xh5dBWi1biyTP';
+                                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                                $server_output = curl_exec($ch); 
+                               // dd($server_output);
+                                  $res = json_decode($server_output);   
+                                  DB::INSERT('CALL SaveMatricNoRequestLogger(?,?,?)',array($parameters,$utme,$mat));
+                                  DB::INSERT('CALL SaveMatricNoRequestLogger(?,?,?)',array(json_encode($server_output),$utme,$mat));
+                              
+                                    //$res->status==203
+                                   // dd($res);
+                                    if($res->status==201)
+                                    {
+                                           $matrs = $res->data->student->matric_no;
+                                           $ck1 = DB::table('users')->where('matric', $res->data->student->matric_no)->first();
+                                           if($ck1)
+                                            {
+                                               $matr=0;
+                                            }
+                                            else
+                                            {
+                                               $this->UpdateMatricNo($res->data->student->matric_no);
+                                            }
+                                     
+                                    }   
+                                    elseif($res->status==203)
+                                    {
+                                       $client = new \GuzzleHttp\Client();
+                                       #Pass email address to get matricno
+                                       $urlinfo = config('paymentUrl.student_url').$std[0]->email;
+                                       $response = $client->request('GET', $urlinfo, ['headers' => [ 'Access-Token' => 'zh8o1sxdIp0xHatJAmeFHQEXmTmGzped6xhTipZ1b72uEGRsafQjvyomIivg43s6']]);
+                                       if($response->getStatusCode() == 200) 
+                                       {   
+                                              $ress = json_decode($response->getBody());
+                                              $mat =$ress->data[0]->student->matric_no;
+                                              $this->UpdateMatricNo(Auth::user()->matricno, $ress->data[0]->student->matric_no);
+                                       }
+                                       else
+                                       {
+                                            DB::INSERT('CALL SaveMatricNoRequestLogger(?,?,?)',array(json_encode($ress),$utme,$mat));
+                                       }
+                                     
+                                    }
+                                    else
+                                    {
+                                        $matr=null;
+                                    }
+                                   
+                          } 
+                                         
+                        } 
+                                     
+                    
+    }
     public function UpdateStudentBiodataInfo()
     {
         if($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -28,19 +136,19 @@ class AppApiController extends Controller
            //return $data;
            $res = json_decode($data); 
           // return $res; 
-            DB::INSERT('CALL SaveBiodataRequestLogger(?)',array(json_encode($res)));
+           // DB::INSERT('CALL SaveBiodataRequestLogger(?)',array(json_encode($res)));
            $nc=0; $status_zero_counter=0; $status_one_counter=0;
            if($res)
            {
                $sta = $res[0]->status;
-               DB::INSERT('CALL SaveBiodataRequestLogger(?)',array(json_encode($res)));
+              // DB::INSERT('CALL SaveBiodataRequestLogger(?)',array(json_encode($res)));
                foreach($res as $item)
                {
                     // return $item->matric;
                     ini_set('max_execution_time', 600);  
                     #Check for double entry
                     $status = false;
-                    $mat = User::select('utme','matricno')->where('matric', $item->matric)->first();
+                    $mat = User::select('utme','matricno')->where('matric', $item->matricno)->first();
                     if($mat)  
                     {
                         $ckBid  = UGRegistrationProgress::select('matricno')->where('utme', $mat->utme)->where('stageid',7)->first();
@@ -53,7 +161,7 @@ class AppApiController extends Controller
                         {
                             #Update Batching Status
                             DB::table('biodatabatching')->where('utme', $mat->utme)->update(['isbio'=>'1']); 
-                            $this->SaveLogger($item->matric,$item,$mat->utme,$sta);
+                            $this->SaveLogger($item->matricno,$item,$mat->utme,$sta);
                             ++$status_zero_counter;
                         }
                         else
@@ -96,7 +204,7 @@ class AppApiController extends Controller
                             #Update Batching Status
                             DB::table('biodatabatching')->where('utme', $mat->utme)->update(['isbio'=>'1']); 
                             ++$status_one_counter;
-                            $this->SaveLogger($item->matric,$item,$mat->utme,$sta);
+                            $this->SaveLogger($item->matricno,$item,$mat->utme,$sta);
                         }
                          
                     }
@@ -118,29 +226,52 @@ class AppApiController extends Controller
                                         'address'=>$item->address
                                        ]);
                     #Parent info
-                    $pa = DB::table('u_g_parent_infos')->where('matricno', $mat->matricno)
+                    if($item->kinName && $item->kinName && $item->kinName  && $item->kinrelatationship &&
+                       $item->kinphone &&  $item->kinemail && $item->kinaddress && $mat->matricno
+                    )
+                    {
+                       $pa = DB::table('u_g_parent_infos')->where('matricno', $mat->matricno)
                                                       ->update(['surname'=>$item->kinName,
                                                                 'othername'=>$item->kinName,
-                                                                'relation'=>$item->kinrelationship,
+                                                                'relation'=>$item->kinrelatationship,
                                                                 'phone'=>$item->kinphone,
                                                                 'email'=>$item->kinemail,
                                                                 'address'=>$item->kinaddress                                              
                                                 ]);
-                $ck = DB::table('schoolinfo')
-                                            ->where('matricno', $mat->matricno)
-                                            ->where('name', $item->school->name)
-                                            ->where('startdate', $item->school->from_date)
-                                            ->first();
-                   if(!$ck)
-                    {
-                        $sch = new SchoolInfo();
-                        $sch->matricno  =    $mat->matricno;
-                        $sch->name      =    $item->school->name;
-                        $sch->startdate =    $item->school->from_date;
-                        $sch->enddate   =    $item->school->to_date;
-                        $sch->save();
                     }
+                   #save school
 
+                   //return $item->school;
+                   if($item->school)
+                   {
+                       return true;
+                   }
+                   if(count($item->school) > 0)
+                    {
+                        foreach($item->school as $schs)
+                        {
+                            //return $schs->name;
+                        
+                            if($mat->matricno && $schs->name && $schs->from_date &&  $schs->to_date)
+                            {
+                                    $ck = DB::table('schoolinfo')
+                                                            ->where('matricno', $mat->matricno)
+                                                            ->where('name', $schs->name)
+                                                            ->where('startdate', $schs->from_date)
+                                                            ->first();
+                                    if(!$ck)
+                                    {
+                                    // return $sch->name;
+                                        $sch = new SchoolInfo();
+                                        $sch->matricno  =    $mat->matricno;
+                                        $sch->name      =    $schs->name;
+                                        $sch->startdate =    $schs->from_date;
+                                        $sch->enddate   =    $schs->to_date;
+                                        $sch->save();
+                                    }
+                            }
+                        }
+                   }
                 }
                
                
