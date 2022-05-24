@@ -17,8 +17,15 @@ use Illuminate\Http\Response;
 use App\UGRegistrationProgress;
 class AppApiController extends Controller
 {
+
+
+  
     public function UpdateMatriculationNumber($mat)
     {
+        if($a<=1 || $a>0)
+        {
+
+        }
         return $mat;
                        $utme = "";    
                        $apptype = "UGD";
