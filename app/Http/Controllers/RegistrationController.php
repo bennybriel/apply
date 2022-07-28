@@ -19,6 +19,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
 use App\Mail\ReferenceEmail;
+use App\TrackUserApplication;
+use App\TrackApplications;
+
 //use Illuminate\Support\Facades\Validator;
 //use Illuminate\Validation\Rule;
 
@@ -1822,414 +1825,10 @@ class RegistrationController extends Controller
          return view('logon');
       }
   }
-  public function DeleteAddRemoveReg($id)
-  {
-      if(Auth::check())
-      {
-        DB::table('ugcoursereg')->where('id', $id)->delete();
-        return redirect()->route('ugaddremovePreview');
-      }
-      else
-      {
-         return view('logon');
-      }
-  }
-
-  public function PreviewCourse(Request $request)
-  {
-    if(Auth::check())
-    {
-        $Tunit =0;
-          $course  = $request->input('course');
-          $mat = Auth::user()->matricno;
-          $sess = session('sess');
-          $sems = session('sems');
-          $deps = session('pro');
-          $levs = session('levs');
-          if($course)
-          {
-               //Get already course unit total
-                $data = DB::SELECT('CALL FetchUGCourseRegistration(?,?,?,?,?)',array($mat,$sess, $sems,$levs,$deps));
-                foreach($data as $dat)
-                {
-                    $Tunit +=$dat->courseunit;
-                }
-                //Get the unit of the course about to be added
-                $u = DB::SELECT('CALL GetUnitByCoursecode(?)', array($course));
-                //Add U and TU together
-                $tu = $Tunit + $u[0]->courseunit;
-
-                if($tu > 24)
-                {
-                    return back()->with('error', 'Operation Failed, You Cannot Register Must Than 24-Units');
-                }
-
-
-              $sav = DB::INSERT('CALL UGAddNewCourse(?,?,?,?,?,?)', array($mat,$sess,$sems,$deps,$course,$levs));
-              if($sav)
-              {
-                return back()->with('success', 'Record Added Successfully');
-              }
-              else
-              {
-                  return back()->with('error', 'Operation Failed, Please Try Again');
-              }
-    }
-
-  }
-}
-  public function AddRemovePreview()
-  {
-    if(Auth::check())
-    {
-        $mat =  Auth::user()->matricno;
-        $sess =  session('sess');//Auth::user()->activesession;
-        $sems = session('sems');
-        $deps = session('pro');
-        $levs = session('levs');
-        $cus  = DB::SELECT('CALL FilterCoursesByLevelSemester(?,?)', array($levs,$sems));
-        $data = DB::SELECT('CALL UGFetchSubmittedCourseReg(?,?,?,?,?)',array($mat,$sess, $sems,$levs,$deps));
-        //dd($mat);
-        return view('ugaddremovePreview',['dat'=>$data, 'lev'=>$levs, 'ses'=>$sess, 'sem'=>$sems,'dep'=>$deps, 'cus'=>$cus]);
-    }
-    else
-    {
-        return view('logon');
-    }
-  }
-  public function PreAddRemove(Request $request)
-  {
-    if(Auth::check())
-    {
-      //return view('ugaddRemoveCourse');
-           $deps = $request->input('programme');
-           $levs = $request->input('level');
-           $sess = $request->input('session');
-           $sems = $request->input('semester');
-           $mat = Auth::user()->matricno;
-
-           //dd($mat.$sess.$sems.$levs.$deps);
-           //Set Session variables
-           session(['pro' => $deps]);
-           session(['sems' => $sems]);
-           session(['sess' => $sess]);
-           session(['levs' => $levs]);
-           $cus =  DB::SELECT('CALL FilterCoursesByLevelSemester(?,?)', array($levs,$sems));
-           $data = DB::SELECT('CALL UGFetchSubmittedCourseReg(?,?,?,?,?)', array($mat,$sess,$sems,$levs,$deps));
-           return view('ugaddremovePreview',['data'=>$data, 'dep' =>$deps,'ses'=>$sess, 'sem'=>$sems, 'lev'=>$levs, 'cus'=>$cus]);
-        }
-        else
-        {
-            return view('logon');
-        }
-  }
-  public function PreAddAndRemove()
-  {
-    if(Auth::check())
-    {
-       $sess = DB::SELECT('CALL FetchSession()');
-       $prog = DB::SELECT('CALL FetchProgramme()');
-
-       return view('ugaddRemoveCourse',['pro' =>$prog, 'ses'=>$sess]);
-    }
-    else
-    {
-        return view('logon');
-    }
-  }
-    public function CourseRegCompleted()
-    {
-       $res="";
-        if(Auth::check())
-        {
-            $sess = session('ses');
-            $mat = Auth::user()->matricno;
-            //$sess = Auth::user()->activesession;
-           //Get variables
-            $par = DB::SELECT('CALL UGGetDepartmentByMatricNoSessionFromCourseReg(?,?)', array($mat,$sess));
-         //Course Registration Final Submission
-         
-           if($par)
-           {
-                 $succ = DB::UPDATE('CALL UGUpdateCourseRegSubmission(?,?,?,?,?)',
-                 array($mat,$sess,$par[0]->semester,$par[0]->level,$par[0]->programme));
-                 //dd($succ);
-                if($succ > 0)
-                {
-                    //Send Email
-                    $mat = Auth::user()->matricno;
-                    $stdname = Auth::user()->name;
-                    $levs = $par[0]->level;
-                    $sems = $par[0]->semester;
-                    $deps = $par[0]->programme;
-                    ///Email Parameters
-                    $data["email"] = Auth::user()->email;
-                    $data["client_name"]=Auth::user()->name;
-                    $data["subject"]="Course Registration " .$levs ." level  ". $sems .", " .$sess;
-                    //Session Variables
-                    session(['pro' => $deps]);
-                    session(['sems' => $sems]);
-                    session(['levs' => $levs]);
-                    $data = DB::SELECT('CALL UGFetchSubmittedCourseReg(?,?,?,?,?)',array($mat,$sess, $sems,$levs,$deps));
-                    $result = ['data'=>$data, 'lev'=>$levs, 'ses'=>$sess, 'sem'=>$sems,'pro'=>$deps];
-                    PDF::setOptions(['dpi' => 150, 'defaultFont' => 'sans-serif']);
-                    // pass view fil
-                    $pdf = PDF::loadView('ugprintPreview',$result);
-                   // $pdf->setWatermarkImage(public_path('img/logo_course.jpg'));
-                    $fname = $stdname.$levs;
-                   //Send Email
-                   $data["email"] = Auth::user()->email;
-                   $data["client_name"]=Auth::user()->name;
-                   $data["subject"]="Course Registration " .$levs ."  ". $sems ." Semester, " . $sess;
-                   $data["fileName"] = $stdname. $data["subject"];
-                   try
-                   {
-                        Mail::send('emails.courseForm', $data, function($message)use($data,$pdf)
-                        {
-                            $message->to($data["email"], $data["client_name"])
-                            ->subject($data["subject"])
-                            ->attachData($pdf->output(),  $data['fileName'].".pdf");
-                       });
-                   }catch(JWTException $exception){
-                        $this->serverstatuscode = "0";
-                        $this->serverstatusdes = $exception->getMessage();
-                    }
-                    if (Mail::failures()) {
-                        $this->statusdesc  =   "Error sending mail";
-                        $this->statuscode  =   "0";
-
-                    }else
-                    {
-
-                    $this->statusdesc  =   "Message sent Succesfully";
-                    $this->statuscode  =   "1";
-                    }
-
-                    // return $pdf->download($fname.'.pdf');
-                     $res= 'Congratulations!!!, You have successfully registered for this semester courses. Please click on Print Course Form or Download it from your school email address.';
-                     return view('ugsuccessReg',['res'=>$res]);
-                }
-                else
-                {
-                    //Remove Unsubmitted Courses
-                    DB::DELETE('CALL UGRemoveUnsubmittedCourses(?,?,?,?,?)',
-                    array($mat,$ses,$par[0]->semester,$par[0]->level,$par[0]->programme));
-                    $res = 'Sorry, Your Course Submission Was Not Successful. Please Go to Course Registration Try Again';
-                    return view('ugsuccessReg',['res'=>$res]);
-
-                }
-           }
-           else
-           {       
-              return back()->with('error', 'Operation Failed, Please Try Again');
-           }
-        }
-        else
-        {
-          return view('logon');
-        }
-    }
-    public function DeleteReg($id)
-    {
-        if(Auth::check())
-         {
-           DB::table('ugcoursereg')->where('id', $id)->delete();
-           return redirect()->route('ugcourseCreation');
-         }
-         else
-         {
-            return view('logon');
-         }
-    }
-    public function CreateCourse(Request $request)
-    {
-        if(Auth::check())
-        {
-          $Tunit=0;
-          $course  = $request->input('course');
-          $mat = Auth::user()->matricno;
-          $ses = session('ses');
-          $sem = session('sem');
-          $pro = session('pro');
-          $lev = session('lev');
-          if($course)
-          {
-               //Get already course unit total
-                $data = DB::SELECT('CALL FetchUGCourseRegistration(?,?,?,?,?)',array($mat,$ses, $sem,$lev,$pro));
-                foreach($data as $dat)
-                {
-                    $Tunit +=$dat->courseunit;
-                }
-                //Get the unit of the course about to be added
-                $u = DB::SELECT('CALL GetUnitByCoursecode(?)', array($course));
-                //Add U and TU together
-                $tu = $Tunit + $u[0]->courseunit;
-
-                if($tu > 24)
-                {
-                    return back()->with('error', 'Operation Failed, You Cannot Register Must Than 24-Units');
-                }
-
-
-              $sav = DB::INSERT('CALL UGAddNewCourse(?,?,?,?,?,?)', array($mat,$ses,$sem,$pro,$course,$lev));
-              if($sav)
-              {
-                return back()->with('success', 'Record Added Successfully');
-              }
-              else
-              {
-                  return back()->with('error', 'Operation Failed, Please Try Again');
-              }
-          }
-          return view('ugcourseCreation');
-        }
-        else
-        {
-            return view('logon');
-        }
-    }
-    public function CreateCourses()
-    {
-      dd("1");
-        if(Auth::check())
-        {
-            $mat = Auth::user()->matricno;
-            $ses = session('ses');
-            $sem = session('sem');
-            $pro = session('pro');
-            $lev = session('lev');
-            $cus = DB::SELECT('CALL FilterCoursesByLevelSemester(?,?)', array($lev,$sem));
-
-            $data = DB::SELECT('CALL FetchUGCourseRegistration(?,?,?,?,?)',array($mat,$ses, $sem,$lev,$pro));
-            return view('ugcourseCreation',['dat'=>$data, 'lev'=>$lev, 'ses'=>$ses, 'sem'=>$sem,'pro'=>$pro, 'cus'=>$cus]);
-        }
-        else
-        {
-            return view('logon');
-        }
-    }
-
-    public function PreCourse(Request $request)
-    {
-        if(Auth::check())
-        {
-           $prog = $request->input('programme');
-           $lev  = $request->input('level');
-           $ses  =  $request->input('session');
-           $sem  = $request->input('semester');
-           $mat  = Auth::user()->matricno;
-
-           //Load Courses
-           $pro =$this->GetStudentProgramme($prog);
-           $cks = DB::SELECT('CALL CheckUGPreCourseRegistration(?,?,?,?,?)', array($mat,$ses,$sem,$pro,$lev));
-
-           //dd($cks);
-            #check student not to register different programme in a session
-           $ckp = DB::SELECT('CALL CheckMultipleProgrammeRegistration(?,?)', array($mat,$ses));
-           if($ckp)
-           {
-              if($ckp[0]->programme !=$pro)
-              {
-                  return back()->with('error', 'Operation Failed, You Cannot Register Different Programme In A Session, Please Try Again');
-              }
-           }
-
-           #check student not to register different level in a session
-           $cker = DB::SELECT('CALL CheckMultipleLevelRegistration(?,?)', array($mat,$ses));
-           if($cker)
-           {
-              if($cker[0]->level !=$lev)
-              {
-                  return back()->with('error', 'Operation Failed, You Cannot Register Different Levels In A Session, Please Try Again');
-              }
-           }
-
-           #Check student has registered for the semester
-           if($cks)
-           {
-             return back()->with('error', 'You have already registered. Please visit Add/Remove Menu for necessary updates or changes');
-           }
-              $cus = DB::SELECT('CALL FilterCoursesByLevelSemester(?,?)', array($lev,$sem));
-           if($request)
-           {
-                  
-                    // dd($deptid);
-                     $data = DB::SELECT('CALL FetchCurriculum(?,?,?)', array($sem,$lev,$prog));
-                     
-                     //dd($data);
-                     if($data)
-                     {
-                        //dd($data);
-                        foreach($data as $data)
-                        {
-                            //check multiple record into ugcourse reg table
-                            $ck = DB::SELECT('CALL CheckUGCourseRegDuplicate(?,?,?,?,?,?)',
-                            array($mat,$data->coursecode, $pro, $ses, $sem, $lev));
-
-                            if(!$ck)
-                            {
-                                //Insert record into ugcourse reg table
-                                $pa= DB::INSERT('CALL UGSaveCourseRegistration(?,?,?,?,?,?,?)',
-                                array($mat, $ses, $sem, $lev, $pro, $data->coursecode,$data->IsCore));
-
-
-                            }
-
-
-                        }
-
-                            //Session variables
-                            session(['pro' => $pro]);
-                            session(['sem' => $sem]);
-                            session(['ses' => $ses]);
-                            session(['lev' => $lev]);
-                            session(['data'=> $data]);
-
-
-                            return redirect()->route('ugcourseCreation');
-
-                     }
-                    else
-                    {
-                        return back()->with('error', 'Curriculum Not Found, Please Try Again Later');
-                    }
-
-           }
-          return view('ugcourseCreation');
-        }
-        else
-        {
-            return view('logon');
-        }
-    }
-    public function PreCourses()
-    {
-        if(Auth::check())
-        {
-           $pro = session('Dept');
-           $matricno = Auth::user()->matricno;
-           $se = Auth::user()->activesession;
-           $data = DB::SELECT('CALL FetchStudentAccountRecordByMatricNoSession(?,?)', array($matricno,$se));
-           
-           $rec = DB::SELECT('CALL GetSessionLevelPaid(?)', array($matricno));
-           //dd($rec);
-           //if($data[0]->ispaid==1)
-           //{
-              $ses = DB::SELECT('CALL FetchSession()');
-              $prog = DB::SELECT('CALL GetProgrammeByProgramme(?)', array($pro));
-              return view('ugprecourseReg',['prog' =>$prog, 'ses'=>$ses,'rec'=>$rec]);
-          // }
-          // else
-          //  {
-              //Session::forget('youSessionKey')
-            //  return view('logon');
-           //}
-        }
-        else
-        {
-           $this->logout();
-        }
-    }
+ 
+ 
+  
+  
     public function logout()
     {
         Auth::logout();
@@ -2528,18 +2127,34 @@ class RegistrationController extends Controller
       if(Auth::check())
        {
        
-    // Fetch Employees by programme
-      //  $empData['data'] = ClassSetup::orderby("ClassName","asc")
-           $empData['data'] = DB::SELECT('CALL GetProgrammeByDepartmentID(?)', array($prog));
+
+           $empData['data'] =  DB::table('pgprogramme') ->select('programmeid', 'departmentid', 'programme','degree')
+                                                        ->where('departmentid', $prog)
+                                                        ->where('degree','Ph.D')
+                                                        ->get();   
+           //DB::SELECT('CALL GetProgrammeByDepartmentID(?)', array($prog));
           // dd($empData);
            return response()->json($empData);
            }
         }   
+    public function ReturnStateName($stateid)
+    { 
+        if($stateid)
+        {
+            $sta = DB::table('statelist')->where('stateid', $stateid)
+                                         ->first();
+            if($sta){
+                return $sta->name;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+    }
      public function StudentData(Request $request)
      {
-        
-        
-
         if(Auth::check())
         {
             $ispd = Auth::user()->ispaid;
@@ -2549,7 +2164,7 @@ class RegistrationController extends Controller
             }
             //Student Personal Biodata
             $apptype= Auth::user()->apptype;
-            //dd($apptype);
+           // dd($apptype);
             $surname = $request->input('surname');
             $session = $request->input('session');
             $firstname = $request->input('firstname');
@@ -2565,6 +2180,7 @@ class RegistrationController extends Controller
             $marital = $request->input('maritalstatus');
             $state = $request->input('state');
             $town = $request->input('town');
+            $lga = $request->input('lga');
             $faculty = $request->input('faculty');
             $photo = $request->input('photo');
             $religion = $request->input('religion'); 
@@ -2586,6 +2202,7 @@ class RegistrationController extends Controller
             session(['faculty' => $faculty]);
             session(['photo' => $photo]);
             session(['religion' => $religion]);
+            session(['lga'=> $lga]);
             session(['admissiontype' => $admissiontype]);
             session(['category1' => $category1]);
             session(['category2' => $category2]);
@@ -2625,106 +2242,122 @@ class RegistrationController extends Controller
             {
                 return back()->with('error', 'Photo Must Not Greater Than 20K, Please Retry');
             }
-           /* if($st_email[0]->Email== 1)
-            {
-                return back()->with('error', 'Email Address Already Exist, Please Try Another Email Address');
-            }
-            if($st_phone[0]->Phone== 1)
-            {
-                return back()->with('error', 'Phone Number Already Exist, Please Try Again');
-            }
-            */
-            if($st_matric[0]->Mat== 1)
-            {
-                return back()->with('error', 'MatricNo Already Exist, Please Try Again');
-            }
+          
+            // if($st_matric[0]->Mat== 1)
+            // {
+            //     return back()->with('error', 'MatricNo Already Exist, Please Try Again');
+            // }
             
-            /*
-
-                if($ck_email[0]->Mat== 1)
-                {
-                    return back()->with('error', 'Email Address and MatricNo Already Exist, Please Try Another Email Address');
-                }
-
-                if($ck_phone[0]->Mat== 1)
-                {
-                    return back()->with('error', 'Phone Number and UTME Reg/MatricNo Already Exist, Please Try Again');
-                }
-                */
+          
             //Save a copy of the uploaded file
-           
+            $ses = str_replace("/","",Auth::user()->activesession);
             $input['imagename'] = $matricno.'.'.$file_path->getClientOriginalExtension();
-            $destinationPath = public_path('/Passports');
+            $destinationPath = public_path('/Passports/'.$apptype.$ses);
             $file_path->move($destinationPath, $input['imagename']);
             $imgP=$input['imagename'];
             $photo=$imgP;
+            //dd($destinationPath);
             $admissiontype = Auth::user()->apptype;
-         
-           //Get Student Info from users table and preload on the form
-          //  $sav = DB::INSERT('CALL UGSaveBiodata(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-          //                      array($email,$surname,$firstname,$othername,$uuid,$matricno,
-           //                      $phone,$gender,$dob,$marital,$town,$state,$address,$photo));
-           
-            if($apptype =="PT")
-            { 
-                 $level = $request->input('level');
-                 //dd($level);
-                 $sav = DB::INSERT('CALL SavePreAdmissionInfoPT(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-                             array($matricno,
-                                   $firstname,
-                                   $surname,
-                                   $othername,
-                                   $email,
-                                   $phone,
-                                   $gender,
-                                   $dob,
-                                   $marital,$town,
-                                   $state,$address,
-                                   $photo,$category1,
-                                   $category2,$session,
-                                   $admissiontype,$religion,$level));
-            }
-            else
+            $result = DB::SELECT('CALL FetchPreAdmissionInfo(?)',array(Auth::user()->matricno));
+            $sta = $this->ReturnStateName($state);
+            #Check if Record Exist
+            if(!$result)
             {
+                    if($apptype =="PT")
+                    { 
+                        $level = $request->input('level');
+                        //dd($level);
+                        $sav = DB::INSERT('CALL SavePreAdmissionInfoPT(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                                    array($matricno,
+                                        $firstname,
+                                        $surname,
+                                        $othername,
+                                        $email,
+                                        $phone,
+                                        $gender,
+                                        $dob,
+                                        $marital,$town,
+                                        $sta,$address,
+                                        $photo,$category1,
+                                        $category2,$session,
+                                        $admissiontype,$religion,$level));
+                    }
+                    else
+                    {
+                        
+                        $level =0;
+                        $sav = DB::INSERT('CALL SavePreAdmissionInfo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                                    array($matricno,
+                                        $firstname,
+                                        $surname,
+                                        $othername,
+                                        $email,
+                                        $phone,
+                                        $gender,
+                                        $dob,
+                                        $marital,$town,
+                                        $sta,$address,
+                                        $photo,$category1,
+                                        $category2,$session,
+                                        $admissiontype,$religion));
+                    }
                 
-                 $level =0;
-                 $sav = DB::INSERT('CALL SavePreAdmissionInfo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-                             array($matricno,
-                                   $firstname,
-                                   $surname,
-                                   $othername,
-                                   $email,
-                                   $phone,
-                                   $gender,
-                                   $dob,
-                                   $marital,$town,
-                                   $state,$address,
-                                   $photo,$category1,
-                                   $category2,$session,
-                                   $admissiontype,$religion));
+                    if($sav)
+                    {
+                        //Update student usertype and photo
+                        $ups= DB::UPDATE('CALL UpdatePhotoInUsers(?,?)', array($photo,$matricno));
+                        ///Insert record to UG Parent Biodata
+                        $pat = DB::INSERT('CALL UGSaveParentsData(?,?,?,?,?,?,?,?)',
+                            array($matricno,$psurname,$pfirstname,$pemail,$pphone,$paddress,$relation,$uuid));
+                        if($pat)
+                        {
+                        //return back()->with('success', 'Record Saved Successfully');
+                            return redirect()->route('ugpreQ');
+                        }
+                        else
+                        {       //Remove record from UG Biodata
+                            DB::DELETE('CALL RemoveRecordFromUGBiodataByMatricno(?)', array($matricno));
+                            return back()->with('error', 'Operation Failed, Please Retry Again');
+                        }
+
+
+                    }
             }
-          
-            if($sav)
-            {
-                //Update student usertype and photo
-                $ups= DB::UPDATE('CALL UpdatePhotoInUsers(?,?)', array($photo,$matricno));
-                ///Insert record to UG Parent Biodata
-                $pat = DB::INSERT('CALL UGSaveParentsData(?,?,?,?,?,?,?,?)',
-                       array($matricno,$psurname,$pfirstname,$pemail,$pphone,$paddress,$relation,$uuid));
-                if($pat)
-                {
-                   //return back()->with('success', 'Record Saved Successfully');
-                    return redirect()->route('ugpreQ');
-                }
-                else
-                {       //Remove record from UG Biodata
-                      DB::DELETE('CALL RemoveRecordFromUGBiodataByMatricno(?)', array($matricno));
-                      return back()->with('error', 'Operation Failed, Please Retry Again');
-                }
-
-
-            }
-
+           else
+           {
+              #Update existing user record
+              DB::table('u_g_pre_admission_regs')->where('matricno', Auth::user()->matricno)
+                                                 ->update(['surname'=>$surname,
+                                                           'firstname'=>$firstname,
+                                                           'othername' =>$othername,
+                                                           'phone'=>$phone,
+                                                           'gender'=>$gender,
+                                                           'dob'=>$dob,
+                                                           'maritalstatus' =>$marital,
+                                                           'town'=>$town,
+                                                           'lga'=>$lga,
+                                                           'state'=>$sta,
+                                                           'address'=>$address,
+                                                           'photo'=>$photo,
+                                                           'category1' =>$category1,
+                                                           'category2' =>$category2,
+                                                           'session' =>$session,
+                                                           'religion'=>$religion,
+                                                           'admissiontype'=>$admissiontype
+                                                         ]);
+            $ups= DB::UPDATE('CALL UpdatePhotoInUsers(?,?)', array($photo,$matricno));
+            DB::table('u_g_parent_infos')->where('matricno', $matricno)
+                                         ->update(['surname'=>$psurname,
+                                                   'othername'=>$pfirstname,
+                                                   'email'=>$pemail,
+                                                   'phone'=>$pphone,
+                                                   'address' =>$paddress,
+                                                   'relation' =>$relation
+                                                ]);
+              //Track Submitted Application
+              $this->TrackSubmittedApplication($gender,$state,$lga,$phone,$dob,$category1,$category2,$session);
+              return redirect()->route('ugpreQ');
+           }
         }
         else
         {
@@ -2732,7 +2365,33 @@ class RegistrationController extends Controller
         }
 
      }
+    
+     public function TrackSubmittedApplication($gender,$state,$lga,$phone,$dob,$cat1,$cat2,$session)
+     {
+        $ck  = DB::table('trackapplications')->where('email', Auth::user()->email)
+                                             ->where('session',$session)
+                                             ->first();
+        $r = new TrackApplications();
+        $r->matricno = Auth::user()->matricno;
+        $r->email = Auth::user()->email;
+        $r->surname = Auth::user()->surname;
+        $r->firstname =Auth::user()->firstname;
+        $r->othername = Auth::user()->othername;
+        $r->session = Auth::user()->activession;
+        $r->apptype = Auth::user()->apptype;
+        $r->gender  = $gender;
+        $r->state = $state;
+        $r->lga = $lga;
+        $r->phone = $phone;
+        $r->dob = $dob;
+        $r->category1 = $cat1;
+        $r->category2 = $cat2;
+        if(!$ck) $r->save();
 
+
+
+
+     }
      public function StudentInfo()
      {
         if(Auth::check())
@@ -2750,7 +2409,7 @@ class RegistrationController extends Controller
             $pros = DB::SELECT('CALL FetchProgramme()');
             $result = DB::SELECT('CALL FetchPreAdmissionInfo(?)',array($mat));
             $item = DB::SELECT('CALL FetchParentsData(?)',array($mat));
-          // dd($data);
+           // dd($result);
             return view('ugbiodata', ['data'=>$data,'item'=>$item, 'rec'=>$rec, 'pro'=>$pro,'pros'=>$pros, 'ses'=>$ses,'result'=>$result]);
         }
         else
@@ -2792,7 +2451,7 @@ class RegistrationController extends Controller
            'password' => ['required', 'string', 'min:8', 'confirmed'],
        ]);
    }
-   public function SubmitRegistration(Request $request)
+   public function SignUpNow(Request $request)
    {
        $surname = $request->input('surname');
        $firstname = $request->input('firstname');
@@ -2804,86 +2463,93 @@ class RegistrationController extends Controller
        $session   = $request->input('session');
 
    
-    $uuid = Str::uuid()->toString();
-    $pw = Hash::make($password);
-    $name=  $surname. '  '. $firstname. ' '.$othername;
-    $da = Carbon::now();// will get you the current date, time
-    $yr= $da->format("Y");
-    $id = mt_rand(100000, 999999);
-    $mat =date("dmY").$id;
-    ///checks
-    $ck_email  = DB::SELECT('CALL CheckAccountSignupDuplicateByEmail(?)',array($email));
-    //$ck_matric = DB::SELECT('CALL CheckAccountSignupDuplicateByMatricNo(?)',array($mat));
+            $uuid = Str::uuid()->toString();
+            $pw = Hash::make($password);
+            $name=  $surname. '  '. $firstname. ' '.$othername;
+            $da = Carbon::now();// will get you the current date, time
+            $yr= $da->format("Y");
+            $id = mt_rand(100000, 999999);
+            $mat =date("dmY").$id;
+            ///checks
+             $emailCheck  = DB::table('users')->where('email',$email)
+                                              ->where('isadmitted', 1)
+                                              ->first();
 
-   // dd($ck_email);
-     if($ck_email[0]->Email== 1)
-      {
-        return back()->with('error', 'Email Address Already Exist, Please Try Another Email Address');
-       }
+                if($emailCheck)
+                {
 
-      // if($ck_matric[0]->Mat== 1)
-      // {
-       // return back()->with('error', 'UTME Reg/MatricNo Already Exist, Please Try Again');
-      // }
+                    $msg = "The Applicant Associated With This Email Address Has Been Offered Admission ". $emailCheck->activesession ." Session, Please Use Another Email Addresss.";
+                    return json_encode(array("statusCode"=>201,'msg'=>$msg));
+                    //return back()->with('error', $msg);
+                }
+
+     
         if($password!=$password2)
         {
-            return back()->with('error', 'Password Mismatch, Please Try Again');
+           
+            $msg = "Password Mismatch, Please Try Again and Make Sure Your Passwords are the same.";
+            return json_encode(array("statusCode"=>203,'msg'=>$msg));
+            //return back()->with('error', $msg);
+
         }
+
         $lpass =strlen($password);
-        if(strlen($password) < 8 )
+        if(strlen($password) < 1 )
         {
-            return back()->with('error', 'Password Must Be Up To 8 or More Characters, Please Try Again');
+            //return back()->with('error', 'Password Must Be Up To 8 or More Characters, Please Try Again');
+            $msg = "Password Must Be Up To 8 or More Characters, Please Try Again.";
+            return json_encode(array("statusCode"=>205,'msg'=>$msg));
         }
-
-
 
        if($request)
        {
-             //$reg = DB::INSERT('CALL SaveRegistration(?,?,?,?,?)',
-            // array($email,$surname,$firstname,$othername,$uuid));
-             //return back()->with('success', 'Record Saved Successfully');
+        
              $d ="12345678";
              $mypassword=Hash::make($d);
-             $url= config('paymentUrl.activation_url');
-            /* $details =
-                    [   'title'=>"",
-                        'body'=>"Thank you for signifying interest in LAUTECH Admissions.",
-                        'parts'=>"Your account has been successfully created. 
-                         Please click on the link below to activate your account.  ". 
-                         $url.$uuid,
-                        'team'=>"Support email:support@lautech.edu.ng"
-                    ];
-                */
+            
+            
                     $ip = $this->getIPAddress();
                     $usr="Candidate";
-                    $crea = DB::INSERT('CALL CreateStudentAccount(?,?,?,?,?,?,?,?,?,?,?,?)',
-                    array($name,$email,$uuid,$pw,$mat,$firstname,$surname,$othername,$session,$usr,$mypassword,$ip));
-                      
-                         $parameters =
-                             '{
-                                "bounce_address": "bounced@bounce.mailx.lautech.edu.ng",
-                                "from": { "address": "appman@mailx.lautech.edu.ng","name": "Webmaster" },
-                                "to": [ { "email_address": { "address": "'.$email.'", "name": "'.$name.'" }}],
-                                "reply_to":[{"address": "support@lautech.edu.ng","name": "LAUTECH Webmaster"}],
-                                "subject": "LAUTECH Account Verification",
-                                "textbody": "Thank you for signifying interest in LAUTECH Admissions.:",
-                                "htmlbody": "<html><body>Thank you for signifying interest in LAUTECH Admissions. Your account has been successfully created. Please click on the link below to activate your account. <img src=\"cid:img-welcome-design\"> <img src=\"cid:img-CTA\"><h1><a href=\"'.$url.$uuid.'\">Verity Your Account</a></h1></body></html>",
-                             }';
-                            
-                        $ch = curl_init();
-                        curl_setopt($ch, CURLOPT_URL,"https://api.zeptomail.com/v1.1/email");
-                        curl_setopt($ch, CURLOPT_POST, 1);
-                        curl_setopt($ch, CURLOPT_POSTFIELDS,$parameters);  //Post Fields
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                        $headers = array();
-                        $headers[] = 'Accept: application/json';
-                        $headers[] = 'Content-Type: application/json';
-                        $headers[] = 'Authorization:Zoho-enczapikey wSsVR60k+R74Wv11nDOuI+hpyl1UBlv0HEl90FTy4nb1GaiT9sc+xhCaDQX1T/QfFWM4RTEWpLkukB9U2jdc290sw18FDyiF9mqRe1U4J3x17qnvhDzOXW5YkhKBL4gOxgponWhpEMEk+g==';
-                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                        $server_output = curl_exec ($ch);
-                       //var_dump($server_output);
-                        curl_close ($ch);
-                    
+                    #Check if the email already exist,for update or create new record
+                    //$emailExist  = DB::table('users')->where('email',$email)
+                                                    // ->first();
+                    $emailExist = $this->CheckStatusDuplication($email, 'users');
+                    ///dd($emailExist);
+                    if($emailExist == true)
+                    {
+                       $dat = DB::table('users')->where('email', $email)
+                                                ->update([ 'name' => $surname . ' '.$firstname .' '.$othername,
+                                                          'surname'   =>$surname,
+                                                          'firstname' =>$firstname,
+                                                          'othername' =>$othername,
+                                                          'password'  =>$mypassword,
+                                                          'activesession'   =>$session,
+                                                          'isactive' =>0,
+                                                          'matricno' =>$mat,
+                                                          'guid'=>$uuid,
+                                                          'iscomplete' => false]);
+                        #Update Info Matricno and parent
+                        DB::UPDATE('CALL UpdateApplicantPreviousInfo(?,?)', array($email, $mat));
+                        #Send Activation Email
+                        $this->SendActivationEmail($email, $mat, $uuid);
+                        #Track the user application
+                        $this->TrackUserApplications($email,$session,$surname,$firstname,$othername);
+                    }
+                    else if($emailExist == false)
+                    {
+                        $crea = DB::INSERT('CALL CreateStudentAccount(?,?,?,?,?,?,?,?,?,?,?,?)',
+                        array($name,$email,$uuid,$pw,$mat,$firstname,$surname,$othername,$session,$usr,$mypassword,$ip));
+                       // $this->TrackUserApplications($email, $session,$surname,$firstname,$othername);
+                         #Send Activation Email
+                         $this->SendActivationEmail($email, $mat, $uuid);
+                    }
+                    else
+                    {
+                          $msg = "This Applicant Has Completed Registration.";
+                          return json_encode(array("statusCode"=>205,'msg'=>$msg));
+                    }
+                 
+                 
                    // return redirect()->route('logon');
                    return view('signupResponse');
 
@@ -2891,6 +2557,79 @@ class RegistrationController extends Controller
 
    }
 
+    public function SendActivationEmail($email, $name, $uuid)
+    {
+                        $url= config('paymentUrl.activation_url');
+                        $parameters =
+                        '{
+                        "bounce_address": "bounced@bounce.mailx.lautech.edu.ng",
+                        "from": { "address": "appman@mailx.lautech.edu.ng","name": "Webmaster" },
+                        "to": [ { "email_address": { "address": "'.$email.'", "name": "'.$name.'" }}],
+                        "reply_to":[{"address": "support@lautech.edu.ng","name": "LAUTECH Webmaster"}],
+                        "subject": "LAUTECH Account Verification",
+                        "textbody": "Thank you for signifying interest in LAUTECH Admissions.:",
+                        "htmlbody": "<html><body>Thank you for signifying interest in LAUTECH Admissions. Your account has been successfully created. Please click on the link below to activate your account. <img src=\"cid:img-welcome-design\"> <img src=\"cid:img-CTA\"><h1><a href=\"'.$url.$uuid.'\">Verity Your Account</a></h1></body></html>",
+                        }';
+                    
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL,"https://api.zeptomail.com/v1.1/email");
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS,$parameters);  //Post Fields
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $headers = array();
+                $headers[] = 'Accept: application/json';
+                $headers[] = 'Content-Type: application/json';
+                $headers[] = 'Authorization:Zoho-enczapikey wSsVR60k+R74Wv11nDOuI+hpyl1UBlv0HEl90FTy4nb1GaiT9sc+xhCaDQX1T/QfFWM4RTEWpLkukB9U2jdc290sw18FDyiF9mqRe1U4J3x17qnvhDzOXW5YkhKBL4gOxgponWhpEMEk+g==';
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                $server_output = curl_exec ($ch);
+                //var_dump($server_output);
+                curl_close ($ch);
+
+    }
+
+   
+   public function TrackUserApplications($email, $session, $s,$f,$o)
+   {
+     if($email && $session)
+     {
+         $data  = new TrackUserApplication();
+         $data->email = $email;
+         $data->session = $session;
+         $data->surname = $s;
+         $data->firstname = $f;
+         $data->othername =$o;
+         $res = $this->CheckApplication($email, $session);
+         if($res== false) $data->save();
+     }
+   }
+   public function CheckStatusDuplication($email,$table)
+   {
+       $res = DB::table($table)->where('email', $email)
+                               ->where('iscomplete', false)
+                               ->first();
+      if($res)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+   }
+   public function CheckApplication($email,$session)
+   {
+       $res = DB::table('trackuserapplication')->where('email', $email)
+                                ->where('session', $session)
+                                ->first();
+      if($res)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+   }
     public function Reg()
     {
         //

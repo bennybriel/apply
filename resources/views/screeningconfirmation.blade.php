@@ -110,9 +110,10 @@
                    <td width="100" rowspan="9" class="noBorder" >
 				        <?php
                    $pic = $data[0]->photo;
+                   $ses = str_replace("/","",Auth::user()->activesession);
                    //dd($pic);
                 ?>
-					           <img src="{{ asset('public/Passports/'.Auth::user()->photo)}}" style="max-width:130px;height:150px;" /> 		
+					           <img src="{{ asset('public/Passports/'.Auth::user()->apptype.$ses.'/'.Auth::user()->photo)}}" style="max-width:130px;height:150px;" /> 		
             
              		   </td>
                     <td width="132" class="noBorder" >Student Name</td>

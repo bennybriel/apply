@@ -34,7 +34,7 @@ class ImpPTAdmissionList implements ToModel,  WithBatchInserts, WithChunkReading
              
         ini_set('max_execution_time', 600);  
         #Check for double entry
-       //dd($row);
+        //dd($row);
         $status = false;
         $val = DB::table('users')->where('formnumber',$row["formnumber"])->first(); //DB::SELECT('CALL ValidateUTMENumber(?)', array($row[0]));
         $ck  = DB::table('ptadmissionlist')->where('formnumber',$row["formnumber"])->first(); //DB::SELECT('CALL CheckDuplicateAdmissionList(?)', array($row[0]));
@@ -50,10 +50,12 @@ class ImpPTAdmissionList implements ToModel,  WithBatchInserts, WithChunkReading
                         DB::UPDATE('CALL UpdateAdmissionStatus(?,?)',array($row["formnumber"],$status));
                         return new PTAdmissionList([
                             'formnumber'         => $row["formnumber"],
-                            'name'               => $row["name"],
-                            'programme'          => $row["programme"],
-                            'slevels '           => $row["studentlevel"],
-                            'session'            => $this->ses        
+                            'surname'            => $row["surname"],
+                            'othername'          => $row["othername"],
+                            'programme'          => $row["department"],
+                            'studentclass'       => $row["studentclass"],
+                            'session'            => $this->ses,    
+                            'matricno'           => $val->matricno      
                         ]); 
                     }
             

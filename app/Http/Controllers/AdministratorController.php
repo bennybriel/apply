@@ -907,28 +907,36 @@ class AdministratorController extends Controller
             return view('logon');
         }
    }
-    public function UpdateAppActivation($id, Request $request)
-    {
-         if(Auth::check())
-         {
-             #Number of days 
-             $closedate = $request->input('closedate');
-             $ids = DB::SELECT('CALL GetApplicationForClosing(?)', array($id));
-             //dd($ids);
-             //$date1 = new DateTime("May 3, 2012 10:38:22 GMT");
-             //$date2 = new DateTime("06 Apr 2012 07:22:21 GMT");
-             $date1=date_create($ids[0]->opendate);
-             $date2=date_create($closedate);
-             $diff=date_diff($date1,$date2);
-             $ads = $diff->format("%a");
-             $sav = DB::UPDATE('CALL UpdateAppClosingInfo(?,?,?)',array($closedate,$ads,$id));
-             return redirect()->route('appactivation');
-         }
-         else
-         {
- 
-         }
-    }
+   public function UpdateAppActivation(Request $request)
+   {
+        if(Auth::check())
+        {
+            #Number of days 
+            $id = $request->tid;
+          
+            $closedate = $request->close;
+            $opendate  = $request->open;
+            $ids = DB::table('applicationclosing')->where('id', $id)
+                                                  ->first();
+
+           /// dd($request);
+            $date1=date_create($opendate);
+            $date2=date_create($closedate);
+            $diff=date_diff($date1,$date2);
+            $ads = $diff->format("%a");
+            //$sav = DB::UPDATE('CALL UpdateAppClosingInfo(?,?,?)',array($closedate,$ads,$id));
+           $o = DB::table('applicationclosing')->where('id', $id)
+                                           ->update(['closedate'=>$closedate,
+                                                      'opendate' =>$opendate, 'status'=>'1',
+                                                      'activedays'=>$ads]);
+          /// dd($o);
+            return redirect()->route('appactivation');
+        }
+        else
+        {
+
+        }
+   }
      public function RemoveAppActivation($id)
      {
          //dd($id);

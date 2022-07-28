@@ -28,7 +28,7 @@
   $data   = DB::SELECT('CALL FetchFailedPayments(?)', array($matricno));
   $result = DB::SELECT('CALL FetchPreAdmissionInfo(?)', array($matricno));
   $p_1 =1;$p_2 =6; $p_3=8;$p_4=14; $p_5=12;$p_6=9; $p_7 = 10; $p_8=92; $p_9=12;
-  $p3=0;$p4=0;$p5=0;$p6=0;$p7=0;$p8=0;$p9=0;
+  $p3=0;$p4=0;$p5=0;$p6=0;$p7=0;$p8=0;$p=0;
   $p1    = DB::SELECT('CALL FetchApplicationListingByID(?)',array($p_1));
   $p2    = DB::SELECT('CALL FetchApplicationListingByID(?)',array($p_2));
   $p3    = DB::SELECT('CALL FetchApplicationListingByID(?)',array($p_3));
@@ -38,7 +38,7 @@
   $p7    = DB::SELECT('CALL FetchApplicationListingByID(?)',array($p_7));
   $p8    = DB::SELECT('CALL FetchApplicationListingByID(?)',array($p_8));
   $p9    = DB::SELECT('CALL FetchApplicationListingByID(?)',array($p_9)); #Transfer
-  //dd($p9);
+  //dd($p8);
   $apptype = Auth::user()->apptype;
   $ole = DB:: SELECT('CALL GetUTMESubjects(?)',array(Auth::user()->utme));
  // dd($p7);
@@ -129,28 +129,38 @@
 </div>
 
 <!-- Content Row -->
+                        
                                                      @if(Session::has('errors'))
                                                        <div class="alert alert-danger">
                                                       
                                                         {{ Session::get('errors') }}  
-                                                            <a href="{{ route('reg') }}" class="btn btn-primary" style="background:#c0a062;border-color:#da251d;color=000000">
+                                                          @if(Auth::user()->apptype=='PDS' && Auth::user()->apptype=='JUP')
+                                                            <a href="{{ route('pdsjupebDataPage') }}" class="btn btn-primary" style="background:#c0a062;border-color:#da251d;color=000000">
+                                                                   Click To Continue To {{ Auth::user()->apptype }}
+                                                            </a>
+                                                         
+                                                          @else
+                                                            <a href="{{ route('ugbiodata') }}" class="btn btn-primary" style="background:#c0a062;border-color:#da251d;color=000000">
                                                                    Click To Continue
                                                             </a>
+                                                          @endif
                                                         @php
                                                             Session::forget('errors');
                                                         @endphp
                                                       
                                                         </div>
                                                    @endif
-                                                     @if(Session::has('error'))
-                                                       <div class="alert alert-danger">
+
+
+                                     @if(Session::has('error'))
+                                    <div class="alert alert-danger">
                                                         {{ Session::get('error') }}
                                                         @php
                                                             Session::forget('error');
                                                         @endphp
                                                         </div>
                                                    @endif
-                                        @if(Session::has('success'))
+                                                        @if(Session::has('success'))
                                                 <div class="alert alert-success">
                                                         {{ Session::get('success') }}
                                                         @php
@@ -235,7 +245,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endif                    
+                 @endif                    
 <div class="row">
                                                     
                                                           
@@ -528,21 +538,20 @@
                         </div>
                     </div>
                 </div>
-
                   <div class="col-xl-3 col-md-6 mb-4">
                     <div class="card border-left-info shadow h-100 py-2">
                         <div class="card-body">
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-2">
                                     <div class="text-xs font-weight-bold text-info text-uppercase mb-1" style="color:red"><strong>
-                                        2021/2022 Post UTME for PDS/JUPEB
+                                        2021/2022 Post UTME for PDS/JUPEB AND TRANSFER
                                          </strong></div>
                                     <div class="row no-gutters align-items-center">
                                         
                                         
                                     <div class="col">
                                             
-                                        @if($p1 && $p1[0]->status == true)    
+                                        @if(!$p1 && !$p1[0]->status == true)    
                                             <div class="col-auto">
                                     
                                             <h7> </h7>
@@ -552,7 +561,9 @@
                                             </div>  
                                     @else
                                             <div class="col-auto">
-                                            
+                                                                                        <!--  <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">10%</div> -->
+                                            <button type="button" class="btn" data-toggle="modal" data-target="#pdsjupebModal"  style="background:#c0a062;color:white">Confirm UTME No </button>
+
                                             <h7 style="color:red"> Admission Closed </h7>
                                             <!--  <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">10%</div> -->
                                                 <a href="{{ route('ugbiodata') }}" class="btn btn-danger btn-icon-split">
@@ -576,7 +587,8 @@
                         </div>
                     </div>
                 </div>
-               <!-- TRANSFER APPLICATION-->
+              
+           <!-- TRANSFER APPLICATION
                <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                     <div class="card-body">
@@ -589,7 +601,7 @@
                                      @if($p9  && $p9[0]->status == true)
                                       <div class="col-auto">
                                         <h7>&#8358;{{ number_format($p9[0]->amount,2) }} </h7>
-                                        <!--  <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">10%</div> -->
+                                      
                                             <a href="{{ route('PayNow',['id'=>$p_9,'prod'=>$p9[0]->name])  }}"
                                                                         class="btn btn-primary btn-icon-split">
                                             <span class="icon text-white-50">
@@ -603,7 +615,7 @@
                                             <div class="col-auto">
                                             
                                             <h7 style="color:red"> Admission Closed </h7>
-                                            <!--  <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">10%</div> -->
+                                           
                                                 <a href="" class="btn btn-danger btn-icon-split">
                                                 <span class="icon text-white-50">
                                                         <i class="fas fa-arrow-right"></i>
@@ -625,7 +637,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
+
         @endif
         
                                              
@@ -799,8 +812,8 @@
                                 </tr>
                                 <tr>
                                     <td class="noBorder">Form Number</td>
-                                    @if($apptype=="UGD" || $apptype=="DE" || $apptype=="TRF")
-                                      <td class="noBorder1">{{ Auth::user()->utme}}</td>
+                                    @if($apptype=="UGD" || $apptype=="DE")
+                                        <td class="noBorder1">{{ Auth::user()->utme}}</td>
                                     @else
                                       <td class="noBorder1">{{ Auth::user()->formnumber}}</td>
                                     @endif
@@ -989,7 +1002,7 @@
         </div>
      @endif
         @if(Auth::user()->istuition==false && $apptype =="JUP")
-           <a href="{{ route('paymentHome') }}" class="btn btn-success btn-icon-split">
+             <a href="{{ route('paymentHome') }}" class="btn btn-success btn-icon-split">
                                                         <span class="icon text-white-50">
                                                             <i class="fas fa-arrow-right"></i>
                                                         </span>
@@ -1172,14 +1185,14 @@
      </div> 
   </div> 
 @endif
- <?php
+
+@if($usr=="Staff" && $rol && $rol[0]->section=="PartTime")
+    <?php
         $tutme =DB::SELECT('CALL FetchTotalUTME()');
         $tde =DB::SELECT('CALL FetchTotalDE()');
         $reg = DB::SELECT('CALL GetRegisteredApplicants()');
         $apl = DB::SELECT('CALL GetPaidApplicants()');
     ?>
-@if($usr=="Staff" && $rol && $rol[0]->section=="PartTime")
-   
    <div class="container-fluid">
     <div class="row">
     
@@ -1246,49 +1259,49 @@
 
         <!-- Earnings (Monthly) Card Example -->
         @if($tutme)
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Total Uploaded UTME</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                            {{ number_format($tutme[0]->utme,0)}}
-                            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Uploaded UTME</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ number_format($tutme[0]->utme,0)}}
+                                
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user fa-2x text-gray-300"></i>
+                            <div class="col-auto">
+                                <i class="fas fa-user fa-2x text-gray-300"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         @endif
         @if($reg )
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Registered</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ number_format($reg[0]->ugd,0)}}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Registered</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ number_format($reg[0]->ugd,0)}}
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user fa-2x text-gray-300"></i>
+                            <div class="col-auto">
+                                <i class="fas fa-user fa-2x text-gray-300"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         @endif
         @if($tde)
         <!-- Earnings (Monthly) Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
+         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -1550,9 +1563,16 @@
 
             <!--  <img src="logRegTemp/img/brand/admin.jpg" style="max-width:100%;height:auto;"/>  -->
  @endif
-<!----------POST GRADUATE------------------------->
+
+
+<!----------POST GRADUATE HOME------------------------->
 @if($usr=="Staff" && $rol && $rol[0]->section=="PostGraduate")
-   
+    <?php
+      $tutme =DB::SELECT('CALL FetchTotalUTME()');
+      $tde =DB::SELECT('CALL FetchTotalDE()');
+      $reg = DB::SELECT('CALL GetRegisteredApplicants()');
+      $apl = DB::SELECT('CALL GetPaidApplicants()');
+   ?>
    <div class="container-fluid">
     <div class="row">
     
@@ -1604,12 +1624,6 @@
      </div> 
   </div> 
 @endif
-
-
-
-
-
-
 
 
 </div> 
@@ -1680,9 +1694,10 @@
                   
                     <select name="apptype"  class="form-control" required>
                         <option value="">Select Programme</option>
-                        <option value="PDS">PDS</option>
-                        <option value="JUPEB">JUPEB</option>
-                        <option value="TRF">TRANSFER</option>
+                         <option value="UTME">UTME</option>
+                         <option value="PDS">PDS</option>
+                         <option value="JUPEB">JUPEB</option>
+                         <option value="TRF">TRANSFER</option>
                     </select> 
                     <br/>
                     <input type="text" name="formnumber" class="form-control" value="0" placeholder="Enter Formnumber" required>
@@ -1702,10 +1717,13 @@
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
+             <h2 style="color:red">Notice: Application Open for PH.D Applicant Only</h2>
             <div class="modal-header">
-                <h3>Please Your Programme</h3>
+                 <h3>Please Your Programme</h3>
+               
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title"><span></span></h4>
+               
             </div>   
             <div class="modal-body">
                 <form method="post" action="{{ route('PGApplication') }}">

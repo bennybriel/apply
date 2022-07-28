@@ -119,7 +119,6 @@ class HomeController extends Controller
                           
                             if($ispaid ==true && (!$frm || empty($frm) || $frm==null))
                             {
-                                //dd($frm);
                                  #Assign form number and update same
                                  DB::UPDATE('CALL GetFormNumber(?,?)',array($mat,$apptype));
                             }
@@ -133,47 +132,19 @@ class HomeController extends Controller
                                     return view('addLGA',['st'=>$st]);
                                 }
                             }
+                            // if($apptype=="PDS" || $apptype=="JUP")
+                            // {
+                            //     return view('ugbiodata');
+                            // }
+                            // else if($apptype=="PG")
+                            // {
+
+                            // }
+
                         }
 
                   
-                       /*
-                        $res ="Pending";
-                        $client = new \GuzzleHttp\Client();
-                        $pd  = DB::SELECT('CALL ValidatePendingTransaction(?,?)',array($mat,$res));
-                        
-                        foreach($pd as $pd)
-                        {
-                         
-                           
-                            $url = config('paymentUrl.trans_status_url').$pd->transactionid;
-                            $response = $client->request('GET', $url, ['headers' => [ 'token' => 'funda123']]);
-                            $res = json_decode($response->getBody());
-                            DB::INSERT('CALL SaveRequestLogger(?)',array(json_encode($res)));
-                            if($res)
-                            {
-                              if($res->status=="Approved Successful")
-                              {
-                                
-                                   $l = substr($res->trans_ref,0,2);
-                                
-                                   if($l=="CP")
-                                   {
-                                      DB::table('users')->where('matricno', $mat)->update(['isChange'=>"1"]);
-                                   }
-                                  
-                                  $ap = DB::SELECT('CALL GetUserInfoByAppType(?)', array($apptype));
-                                 
-                                  foreach($ap as $ap)
-                                  {
-                                    $sav = DB::UPDATE('CALL UserIspaidStatus(?,?)',array($pd->transactionid,$res->status));
-                                  }
-                                }
-                                else {
-                                    DB::UPDATE('CALL UpdatePaymentQueryResponse(?,?,?)', array($pd->transactionid, $res->status, $mat));
-                                }
-                            }
-                        }
-                        */
+                     
                    
                 }  
                 elseif($usr=="Student" && $apptype=='PDS')

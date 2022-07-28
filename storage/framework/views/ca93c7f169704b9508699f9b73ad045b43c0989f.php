@@ -1,5 +1,5 @@
-@extends('layouts.appdashboard')
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <?php
      $usr=Auth::user()->usertype;
      $staffid = Auth::user()->matricno;
@@ -11,8 +11,9 @@
 <div class="card o-hidden border-0 shadow-lg my-5">
             <div class="card-body p-0">
                 <!-- Nested Row within Card Body -->
-                <form class=""  id="" enctype="multipart/form-data" method="POST" action="{{ route('ActivateApp') }}">
-                                        {{ csrf_field() }}
+                <form class=""  id="" enctype="multipart/form-data" method="POST" action="<?php echo e(route('ActivateApp')); ?>">
+                                        <?php echo e(csrf_field()); ?>
+
 
                     <div class="row">
                     <div class="col-lg-6">
@@ -49,24 +50,26 @@
                                 <div class="p-5">
                                     <div class="text-center">
                                         <h1 class="h4  mb-4" style="color:#da251d">Open/Close Application</h1>
-                                              @if(Session::has('error'))
+                                              <?php if(Session::has('error')): ?>
                                                     <div class="alert alert-danger">
-                                                        {{ Session::get('error') }}
-                                                        @php
+                                                        <?php echo e(Session::get('error')); ?>
+
+                                                        <?php
                                                             Session::forget('error');
-                                                        @endphp
+                                                        ?>
                                                         </div>
-                                                   @endif
-                                                        @if(Session::has('success'))
+                                                   <?php endif; ?>
+                                                        <?php if(Session::has('success')): ?>
                                                      <div class="alert alert-success">
-                                                        {{ Session::get('success') }}
-                                                        @php
+                                                        <?php echo e(Session::get('success')); ?>
+
+                                                        <?php
                                                             Session::forget('success');
-                                                        @endphp
+                                                        ?>
 
                                                         </div>
 
-                                                @endif
+                                                <?php endif; ?>
 
                                     </div>
 
@@ -74,18 +77,18 @@
                                          <div class="col-sm-6 mb-3 mb-sm-0">
                                          <select class="form-control" name="appname" required>
                                                 <option value="">Select Application</option>
-                                                @foreach($lst as $lst)
-                                                    <option value="{{ $lst->name }}">{{ $lst->name }}</option>
-                                                @endforeach
+                                                <?php $__currentLoopData = $lst; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lst): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option value="<?php echo e($lst->name); ?>"><?php echo e($lst->name); ?></option>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                            </select>
                                          </div>  
 
                                          <div class="col-sm-6 mb-3 mb-sm-0">
                                          <select class="form-control" name="session" required>
                                                 <option value="">Select Session</option>
-                                                    @foreach($ses as $ses)
-                                                        <option value="{{ $ses->name }}">{{ $ses->name }}</option>
-                                                    @endforeach
+                                                    <?php $__currentLoopData = $ses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ses): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($ses->name); ?>"><?php echo e($ses->name); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                            </select>
                                          </div>  
                                      </div>
@@ -128,7 +131,7 @@
             </form>
 
             
-                            @if($data)
+                            <?php if($data): ?>
                                        <div class="card shadow mb-4">
                                                     <div class="card-header py-3">
                                                         <h6 class="m-0 font-weight-bold" style="color:#da251d">Open/Close Application Record</h6>
@@ -167,20 +170,20 @@
                                                                 <?php
                                                                     $i=0;
                                                                     ?>
-                                                                    @foreach($data as $data)
+                                                                    <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                                         <tr>
-                                                                            <td>{{ ++$i }}</td>
-                                                                            <td>{{ $data->appname }}</td>
-                                                                            <td>{{ $data->session }}</td>
-                                                                            <td>{{ $data->opendate }}</td>
-                                                                            <td>{{ $data->closedate }}</td>
-                                                                            <td> {{ $data->activedays }}        <td>
+                                                                            <td><?php echo e(++$i); ?></td>
+                                                                            <td><?php echo e($data->appname); ?></td>
+                                                                            <td><?php echo e($data->session); ?></td>
+                                                                            <td><?php echo e($data->opendate); ?></td>
+                                                                            <td><?php echo e($data->closedate); ?></td>
+                                                                            <td> <?php echo e($data->activedays); ?>        <td>
 
-                                                                                 @if($data->status==0)
+                                                                                 <?php if($data->status==0): ?>
                                                                                     <span style="color:red">Close</span>
-                                                                                 @else
+                                                                                 <?php else: ?>
                                                                                      <span style="color:green">Open</span>
-                                                                                 @endif
+                                                                                 <?php endif; ?>
 
                                                                             </td>
                                                                             
@@ -189,19 +192,19 @@
                                                                                                                                      
                                                                             <button type="button" class="btn btn-success" 
                                                                                 id="edit-item" 
-                                                                                  data-item-id="{{  $data->id }}" 
-                                                                                  data-item-open="{{  $data->opendate }}" 
-                                                                                  data-item-close="{{ $data->closedate }}" 
-                                                                                  data-item-prog="{{ $data->appname }}" 
-                                                                                  data-item-remaining ="{{ $data->activedays}}"
+                                                                                  data-item-id="<?php echo e($data->id); ?>" 
+                                                                                  data-item-open="<?php echo e($data->opendate); ?>" 
+                                                                                  data-item-close="<?php echo e($data->closedate); ?>" 
+                                                                                  data-item-prog="<?php echo e($data->appname); ?>" 
+                                                                                  data-item-remaining ="<?php echo e($data->activedays); ?>"
                                                                                > Edit </button>
-        |                                                                        <a href="{{ route('RemoveAppActivation',$data->id) }}" class="btn btn-danger" style="color:white">Delete</a>
+        |                                                                        <a href="<?php echo e(route('RemoveAppActivation',$data->id)); ?>" class="btn btn-danger" style="color:white">Delete</a>
                                                                         
                                                                              </td>                                  
                                                                          
 
                                                                         </tr>
-                                                                    @endforeach
+                                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                                 </tbody>
                                                             </table>
                                                             
@@ -211,7 +214,7 @@
                                                     </div>
                                                 </div>
 
-                                        @endif
+                                        <?php endif; ?>
         </div>
 
         <div class="modal fade" id="edit-modal" role="dialog">
@@ -226,8 +229,8 @@
                                                                                             <h4 class="modal-title" style="color:red">Update <span id='programme'> </span></h4>
                                                                                            
                                                                                           
-                                                                                            <form class="form-group" action="{{ route('UpdateAppActivation') }}" method="post" id="editCommunityForm">
-                                                                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                            <form class="form-group" action="UpdateAppActivation" method="post" id="editCommunityForm_<?php echo e($data->id); ?>">
+                                                                                                <input type="hidden" name="_token" value="<?php echo e(csrf_token()); ?>">
                                                                                                 <input type="hidden" name="tid" value="" id='tid'>
                                                                                                  <label>Opening Date</label>
                                                                                                  <input type="date" name="open" class="form-control" id="open">
@@ -235,9 +238,9 @@
                                                                                                  <input type="date" name="close" class="form-control" id="close">
                                                                                                  <label>Remaining Date</label>
                                                                                                  <input type="text" name="remaining" disabled class="form-control" id="remaining">
-                                                                                                 <br/>
-                                                                                            <button class="btn btn-custom" style="background:#c0a062;color:white" type="submit">Update</button><br /><br />
-                                                                                         </form>
+                                                                                            </form>
+                                                                                            <button class="btn btn-custom" style="background:#c0a062;color:white" type="submit" form="editCommunityForm_<?php echo e($data->id); ?>">Update</button><br /><br />
+                                                                                        
                                                                                         </div>
                                                                                         <div class="modal-footer">
                                                                                             <button type="button" class="btn btn-default" style="background:#da251d;color:white" data-dismiss="modal">Close</button>
@@ -295,4 +298,6 @@ $(document).ready(function()
 </script>
 
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.appdashboard', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\xampp\htdocs\apply\resources\views/appactivation.blade.php ENDPATH**/ ?>

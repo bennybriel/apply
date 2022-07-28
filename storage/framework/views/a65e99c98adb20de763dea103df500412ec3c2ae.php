@@ -1,5 +1,4 @@
-@extends('layouts.appdashboard')
-@section('content')
+<?php $__env->startSection('content'); ?>
 <?php
     $psurname   = session('psurname');
     $pfirstname = session('pfirstname');
@@ -40,8 +39,9 @@
             <div class="card-body p-0">
               
                 <!-- Nested Row within Card Body -->
-                <form class=""  id="" enctype="multipart/form-data" method="POST" action="{{ route('StudentData') }}">
-                                        {{ csrf_field() }}
+                <form class=""  id="" enctype="multipart/form-data" method="POST" action="<?php echo e(route('StudentData')); ?>">
+                                        <?php echo e(csrf_field()); ?>
+
 
                     <div class="row">
                     <div class="col-lg-6">
@@ -49,71 +49,73 @@
 
                         <div class="p-5">
                         <div class="text-center">
-                                        <h1 class="h4 mb-4" style="color:#da251d">@if($ap) {{ $ap[0]->description }} Biodata @endif</h1>
+                                        <h1 class="h4 mb-4" style="color:#da251d"><?php if($ap): ?> <?php echo e($ap[0]->description); ?> Biodata <?php endif; ?></h1>
                                         <h6 style="color:red">Note: Your Passport Should Not Be More Than 20KB </h6>
                                     </div>
-                                    @if(Session::has('error'))
+                                    <?php if(Session::has('error')): ?>
                                                  <div class="alert alert-danger">
-                                                        {{ Session::get('error') }}
-                                                        @php
+                                                        <?php echo e(Session::get('error')); ?>
+
+                                                        <?php
                                                             Session::forget('error');
-                                                        @endphp
+                                                        ?>
                                                         </div>
-                                                   @endif
-                                                        @if(Session::has('success'))
+                                                   <?php endif; ?>
+                                                        <?php if(Session::has('success')): ?>
                                                      <div class="alert alert-success">
-                                                        {{ Session::get('success') }}
-                                                        @php
+                                                        <?php echo e(Session::get('success')); ?>
+
+                                                        <?php
                                                             Session::forget('success');
-                                                        @endphp
+                                                        ?>
 
                                                         </div>
 
-                                                @endif
+                                                <?php endif; ?>
 
                                       
                                         <div class="form-group row">
 
                                             <div class="col-sm-6 mb-3 mb-sm-0">
-                                                @if($data)
-                                                    <input type="text" name="surname" value="{{ $data[0]->surname }}" class="form-control form-control" id="exampleLastName"
+                                                <?php if($data): ?>
+                                                    <input type="text" name="surname" value="<?php echo e($data[0]->surname); ?>" class="form-control form-control" id="exampleLastName"
                                                     placeholder="SurName" readonly>
-                                                @else
+                                                <?php else: ?>
                                                 <input type="text" name="surname" class="form-control form-control" id="exampleLastName"
                                                     placeholder="SurName" required>
-                                                @endif
+                                                <?php endif; ?>
 
                                             </div>
                                             <div class="col-sm-6 mb-3 mb-sm-0">
-                                                @if($data)
-                                                    <input type="text" name="firstname" locked="false" value="{{ $data[0]->firstname }}" class="form-control form-control" id="exampleFirstName"
+                                                <?php if($data): ?>
+                                                    <input type="text" name="firstname" locked="false" value="<?php echo e($data[0]->firstname); ?>" class="form-control form-control" id="exampleFirstName"
                                                         placeholder="First Name" readonly>
-                                                @else
+                                                <?php else: ?>
                                                     <input type="text" name="firstname" class="form-control form-control" id="exampleFirstName"
                                                         placeholder="First Name" required>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
 
                                            
                                         </div>
                                         <div class="form-group row">
                                              <div class="col-sm-6 mb-3 mb-sm-0">
-                                                @if($data)
-                                                    <input type="text" name="othername" locked="false" value="{{ $data[0]->othername }}" class="form-control form-control" id="exampleFirstName"
+                                                <?php if($data): ?>
+                                                    <input type="text" name="othername" locked="false" value="<?php echo e($data[0]->othername); ?>" class="form-control form-control" id="exampleFirstName"
                                                         placeholder="Other Name" readonly>
-                                                @else
-                                                    <input type="text" name="othername" value="{{ $othername }}" class="form-control form-control" id="exampleFirstName"
+                                                <?php else: ?>
+                                                    <input type="text" name="othername" value="<?php echo e($othername); ?>" class="form-control form-control" id="exampleFirstName"
                                                         placeholder="Other Name">
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                               <div class="col-sm-6 mb-3 mb-sm-0">
-                                                @if($data)
-                                                    <input type="hidden" value="{{ $data[0]->matricno }}" name="utme" class="form-control form-control"
+                                                <?php if($data): ?>
+                                                    <input type="hidden" value="<?php echo e($data[0]->matricno); ?>" name="utme" class="form-control form-control"
                                                     id="exampleInputPassword" placeholder="UTME Reg/MatricNo" readonly>
-                                                @else
+                                                <?php else: ?>
                                                     <input type="hidden" name="utme" class="form-control form-control"
                                                     id="exampleInputPassword" placeholder="UTME Registration Number" required>
-                                                @endif
+                                                <?php endif; ?>
 
                                             </div>
 
@@ -121,81 +123,81 @@
                                             
 
                                         <div class="form-group">
-                                            @if($data)
-                                                <input type="email" name="email" value="{{ $data[0]->email }}" class="form-control form-control" id="exampleInputEmail"
+                                            <?php if($data): ?>
+                                                <input type="email" name="email" value="<?php echo e($data[0]->email); ?>" class="form-control form-control" id="exampleInputEmail"
                                                 placeholder="Email Address" readonly>
-                                            @else
+                                            <?php else: ?>
                                                 <input type="email" name="email" class="form-control form-control" id="exampleInputEmail"
                                                 placeholder="Email Address" required>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
 
 
 
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
-											@if($result)
-                                                 <input type="date" name="dob" value="{{ $result[0]->dob }}" class="form-control form-control"
+											<?php if($result): ?>
+                                                 <input type="date" name="dob" value="<?php echo e($result[0]->dob); ?>" class="form-control form-control"
                                                         id="exampleRepeatPassword" placeholder="Date of DOB">
-									        @else
-												        <input type="date" name="dob" value="{{ $dob }}" class="form-control form-control"
+									        <?php else: ?>
+												        <input type="date" name="dob" value="<?php echo e($dob); ?>" class="form-control form-control"
                                                         id="exampleRepeatPassword" placeholder="Date of DOB" required>
 											
-											@endif
+											<?php endif; ?>
 
                                             </div>
                                           
                                             <div class="col-sm-6 mb-3 mb-sm-0">
-                                              @if($result)
-                                                <input type="text" name="phone" value={{ $result[0]->phone }} class="form-control form-control"
+                                              <?php if($result): ?>
+                                                <input type="text" name="phone" value=<?php echo e($result[0]->phone); ?> class="form-control form-control"
                                                     id="exampleRepeatPassword" placeholder="Phone" required>
-										     @else
-												  <input type="text" value="{{ $phone }}" name="phone" class="form-control form-control"
+										     <?php else: ?>
+												  <input type="text" value="<?php echo e($phone); ?>" name="phone" class="form-control form-control"
                                                     id="exampleRepeatPassword" placeholder="Phone" required>
-											 @endif
+											 <?php endif; ?>
                                             </div>
                                         </div>
 
 
                                         <div class="form-group">
-										 @if($result)
-                                            <input type="text" name="address" value="{{ $result[0]->address }}" class="form-control form-control" id="exampleInputEmail"
+										 <?php if($result): ?>
+                                            <input type="text" name="address" value="<?php echo e($result[0]->address); ?>" class="form-control form-control" id="exampleInputEmail"
                                                 placeholder="Home Address">
-										@else
-											  <input type="text" name="address" value="{{ $address }}" class="form-control form-control" id="exampleInputEmail"
+										<?php else: ?>
+											  <input type="text" name="address" value="<?php echo e($address); ?>" class="form-control form-control" id="exampleInputEmail"
                                                 placeholder="Home Address" required>
-										@endif
+										<?php endif; ?>
                                         </div>
                                         <div class="form-group row">  
-                                         @if($result)
+                                         <?php if($result): ?>
                                           <div class="col-sm-6 mb-3 mb-sm-0">
                                          
                                                <select name="gender" id="" class="form-control form-control" required>
-                                                    <option value="{{ $result[0]->gender }}">{{ $result[0]->gender }}</option>
+                                                    <option value="<?php echo e($result[0]->gender); ?>"><?php echo e($result[0]->gender); ?></option>
                                                     <option value="Male">Male</option>
                                                     <option value="Female">Female</option>
                                                 </select>
                                            </div>  
-                                          @else
+                                          <?php else: ?>
                                            <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <select name="gender" id="" class="form-control form-control" required>
-                                                   @if($gender)
-                                                       <option value="{{ $gender }}">{{$gender}}</option>
+                                                   <?php if($gender): ?>
+                                                       <option value="<?php echo e($gender); ?>"><?php echo e($gender); ?></option>
                                                        <option value="Male">Male</option>
                                                        <option value="Female">Female</option>
-                                                   @else
+                                                   <?php else: ?>
                                                       <option value="">Gender</option>
-                                                   @endif
+                                                   <?php endif; ?>
                                                     <option value="Male">Male</option>
                                                     <option value="Female">Female</option>
                                                 </select> 
                                            
                                             </div>
-                                         @endif
-                                          @if($result)
+                                         <?php endif; ?>
+                                          <?php if($result): ?>
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                     <select name="maritalstatus" id="" class="  form-control form-control" required>
-                                                        <option value="{{ $result[0]->maritalstatus }}">{{ $result[0]->maritalstatus }}</option>  
+                                                        <option value="<?php echo e($result[0]->maritalstatus); ?>"><?php echo e($result[0]->maritalstatus); ?></option>  
                                                     
                                                         <option value="Single">Single</option>
                                                         <option value="Married">Married</option>
@@ -204,165 +206,165 @@
                                                        
                                                    </select>
                                              </div> 
-                                             @else
+                                             <?php else: ?>
                                                <div class="col-sm-6 mb-3 mb-sm-0">
                                                     <select name="maritalstatus" id="" class="  form-control form-control" required>
                                                        
-                                                        @if($marital)
-                                                          <option value="{{ $marital }}">{{$marital}}</option>
+                                                        <?php if($marital): ?>
+                                                          <option value="<?php echo e($marital); ?>"><?php echo e($marital); ?></option>
                                                           <option value="Single">Single</option>
                                                           <option value="Married">Married</option>
                                                           <option value="Divorced">Divorced</option>
-                                                        @else
+                                                        <?php else: ?>
                                                           <option value="">Marital Status</option>
-                                                        @endif
+                                                        <?php endif; ?>
                                                         <option value="Single">Single</option>
                                                         <option value="Married">Married</option>
                                                         <option value="Divorced">Divorced</option>
                                                    </select>
                                                 </div>
-                                           @endif
+                                           <?php endif; ?>
                                           </div> 
                                        
                                           <div class="form-group row">
-                                             @if($result)
+                                             <?php if($result): ?>
 
                                                 <div class="col-sm-6 mb-3 mb-sm-0">
                                                   <select name="state" id="state" class="form-control form-control" required>
-                                                    <option value="{{ GetStateID($result[0]->state) }}">{{ $result[0]->state}}</option>
+                                                    <option value="<?php echo e($result[0]->state); ?>"><?php echo e($result[0]->state); ?></option>
                                                       
-                                                       @foreach($rec as $rec)
-                                                         <option value="{{ $rec->stateid }}">{{ $rec->name }}</option>
-                                                        @endforeach
+                                                       <?php $__currentLoopData = $rec; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rec): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                         <option value="<?php echo e($rec->stateid); ?>"><?php echo e($rec->name); ?></option>
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                                                   </select>
                                                 </div>
-                                             @else
+                                             <?php else: ?>
                                                  <div class="col-sm-6 mb-3 mb-sm-0">
                                                   <select name="state" id="state" class="form-control form-control" required>
-                                                   @if($state)
-                                                        <option value="{{ $state }}">{{$state }}</option>
-                                                         @foreach($rec as $rec)
-                                                         <option value="{{ $rec->stateid }}">{{ $rec->name }}</option>
-                                                        @endforeach
-                                                   @else
+                                                   <?php if($state): ?>
+                                                        <option value="<?php echo e($state); ?>"><?php echo e($state); ?></option>
+                                                         <?php $__currentLoopData = $rec; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rec): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                         <option value="<?php echo e($rec->stateid); ?>"><?php echo e($rec->name); ?></option>
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                   <?php else: ?>
 
                                                      <option value="">State</option>
-                                                       @foreach($rec as $rec)
-                                                         <option value="{{ $rec->stateid }}">{{ $rec->name }}</option>
-                                                        @endforeach
-                                                  @endif
+                                                       <?php $__currentLoopData = $rec; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rec): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                         <option value="<?php echo e($rec->stateid); ?>"><?php echo e($rec->name); ?></option>
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                  <?php endif; ?>
                                                   </select>
 
                                                 </div>
-                                              @endif 
-                                               @if($result)  
+                                              <?php endif; ?> 
+                                               <?php if($result): ?>  
 
                                                  <div class="col-sm-6 mb-3 mb-sm-0">
-                                                    <input type="text" name="town" value="{{ $result[0]->town }}" class="form-control form-control"
+                                                    <input type="text" name="town" value="<?php echo e($result[0]->town); ?>" class="form-control form-control"
                                                     id="exampleRepeatPassword" placeholder="Town" required>
                                                   </div>
-                                               @else
+                                               <?php else: ?>
                                                   <div class="col-sm-6 mb-3 mb-sm-0">
-                                                    <input type="text" name="town" value="{{ $town }}" class="form-control form-control"
+                                                    <input type="text" name="town" value="<?php echo e($town); ?>" class="form-control form-control"
                                                     id="exampleRepeatPassword" placeholder="Town" required>
                                                   </div>
-                                                @endif  
+                                                <?php endif; ?>  
 
 
                                             </div>
 
                                             <div class="form-group row">
                                                                                      
-                                            @if($result)  
+                                            <?php if($result): ?>  
 
                                                <div class="col-sm-12 mb-3 mb-sm-0">
                                                   <select name="lga" id="lga" class="form-control form-control" required>
-                                                    <option value="{{ $result[0]->lga }}">{{ $result[0]->lga }}</option>
+                                                    <option value="<?php echo e($result[0]->lga); ?>"><?php echo e($result[0]->lga); ?></option>
                                                     <option value="">Select LGA</option>
                                                    
                                                   </select>
                                                </div>
-                                             @else
+                                             <?php else: ?>
                                                  <div class="col-sm-12 mb-3 mb-sm-0">
                                                   <select name="lga" id="lga" class="form-control form-control" required>
-                                                  @if($lga)
-                                                        <option value="{{ $lga }}">{{ $lga }}</option>
+                                                  <?php if($lga): ?>
+                                                        <option value="<?php echo e($lga); ?>"><?php echo e($lga); ?></option>
                                                      
-                                                  @else
+                                                  <?php else: ?>
                                                     <option value="">Select LGA </option>
                                               
                                                    
-                                                  @endif
+                                                  <?php endif; ?>
                                                   </select>
                                                </div>
-                                              @endif  
+                                              <?php endif; ?>  
                                                
                                            
                                         </div>
                                           <div class="form-group row">
                                             
-                                             @if($result)  
+                                             <?php if($result): ?>  
 
                                                <div class="col-sm-12 mb-3 mb-sm-0">
                                                   <select name="category1" id="category1" class="form-control form-control" required>
-                                                    <option value="{{ $result[0]->category1 }}">{{ $result[0]->category1 }}</option>
+                                                    <option value="<?php echo e($result[0]->category1); ?>"><?php echo e($result[0]->category1); ?></option>
                                                 
-                                                    @foreach($pro as $pro)
-                                                     <option value="{{ $pro->programme }}">{{ $pro->programme }}</option>
-                                                    @endforeach
+                                                    <?php $__currentLoopData = $pro; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pro): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                     <option value="<?php echo e($pro->programme); ?>"><?php echo e($pro->programme); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                   </select>
                                                </div>
-                                             @else
+                                             <?php else: ?>
                                                  <div class="col-sm-12 mb-3 mb-sm-0">
                                                   <select name="category1" id="category1" class="form-control form-control" required>
-                                                  @if($category1)
-                                                        <option value="{{ $category1 }}">{{ $category1 }}</option>
-                                                        @foreach($pro as $pro)
-                                                          <option value="{{ $pro->programme }}">{{ $pro->programme }}</option>
-                                                       @endforeach
-                                                  @else
+                                                  <?php if($category1): ?>
+                                                        <option value="<?php echo e($category1); ?>"><?php echo e($category1); ?></option>
+                                                        <?php $__currentLoopData = $pro; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pro): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                          <option value="<?php echo e($pro->programme); ?>"><?php echo e($pro->programme); ?></option>
+                                                       <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                  <?php else: ?>
                                                     <option value="">Category 1</option>
                                               
-                                                    @foreach($pro as $pro)
-                                                     <option value="{{ $pro->programme }}">{{ $pro->programme }}</option>
-                                                    @endforeach
-                                                  @endif
+                                                    <?php $__currentLoopData = $pro; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pro): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                     <option value="<?php echo e($pro->programme); ?>"><?php echo e($pro->programme); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                  <?php endif; ?>
                                                   </select>
                                                </div>
-                                              @endif  
+                                              <?php endif; ?>  
                                                </div>
                                           <div class="form-group row">
                                     
-                                             @if($result)  
+                                             <?php if($result): ?>  
 
                                                <div class="col-sm-12 mb-3 mb-sm-0">      
                                                   <select name="category2" id="category2" class="form-control form-control" required>
-                                                    <option value="{{ $result[0]->category2 }}">{{ $result[0]->category2 }}</option>
+                                                    <option value="<?php echo e($result[0]->category2); ?>"><?php echo e($result[0]->category2); ?></option>
                                               
-                                                    @foreach($pros as $pros)
-                                                     <option value="{{ $pros->programme }}">{{ $pros->programme }}</option>
-                                                    @endforeach
+                                                    <?php $__currentLoopData = $pros; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pros): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                     <option value="<?php echo e($pros->programme); ?>"><?php echo e($pros->programme); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                   </select>
                                                </div>
-                                             @else
+                                             <?php else: ?>
                                                  <div class="col-sm-12 mb-3 mb-sm-0">
                                                   <select name="category2" id="category2" class="form-control form-control" required>
-                                                  @if($category2)
-                                                        <option value="{{ $category2 }}">{{ $category2 }}</option>
-                                                        @foreach($pros as $pros)
-                                                          <option value="{{ $pros->programme }}">{{ $pros->programme }}</option>
-                                                        @endforeach
-                                                  @else
+                                                  <?php if($category2): ?>
+                                                        <option value="<?php echo e($category2); ?>"><?php echo e($category2); ?></option>
+                                                        <?php $__currentLoopData = $pros; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pros): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                          <option value="<?php echo e($pros->programme); ?>"><?php echo e($pros->programme); ?></option>
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                  <?php else: ?>
                                                     <option value="">Category 2</option>
                                               
-                                                    @foreach($pros as $pros)
-                                                     <option value="{{ $pros->programme }}">{{ $pros->programme }}</option>
-                                                    @endforeach
-                                                  @endif
+                                                    <?php $__currentLoopData = $pros; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pros): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                     <option value="<?php echo e($pros->programme); ?>"><?php echo e($pros->programme); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                  <?php endif; ?>
                                                   </select>
                                                </div>
-                                              @endif  
+                                              <?php endif; ?>  
 
                                            </div>
                                             <div class="form-group row">
@@ -370,42 +372,42 @@
                                          </div>
                                         
                                         <div class="form-group row">
-                                         @if($result)  
+                                         <?php if($result): ?>  
                                                <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <select name="religion" id="religion" class="form-control form-control" required>
-                                                   <option value="{{ $result[0]->religion }}">{{ $result[0]->religion }}</option>
+                                                   <option value="<?php echo e($result[0]->religion); ?>"><?php echo e($result[0]->religion); ?></option>
                                                    <option value="Christianity">Christianity</option>
                                                    <option value="Muslim">Muslim</option>
                                                    <option value="Traditional">Traditional</option>
                                                    <option value="Others">Others</option>
                                                    </select>
                                                 </div>
-                                         @else
+                                         <?php else: ?>
                                               <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <select name="religion" id="religion" class="form-control form-control" required>
-                                                  @if($religion)
+                                                  <?php if($religion): ?>
 
-                                                     <option value="{{ $religion }}">{{ $religion }}</option>
+                                                     <option value="<?php echo e($religion); ?>"><?php echo e($religion); ?></option>
                                                      <option value="Christianity">Christianity</option>
                                                      <option value="Muslim">Muslim</option>
                                                      <option value="Traditional">Traditional</option>
                                                      <option value="Others">Others</option>
-                                                  @else                                                 
+                                                  <?php else: ?>                                                 
                                                    <option value="">Religion</option>
                                                    <option value="Christianity">Christianity</option>
                                                    <option value="Muslim">Muslim</option>
                                                    <option value="Traditional">Traditional</option>
                                                    <option value="Others">Others</option>
-                                                   @endif
+                                                   <?php endif; ?>
                                                    </select>
                                                 </div>
-                                         @endif     
+                                         <?php endif; ?>     
 
                                          
                                          
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                               <select name="admissiontype" id="admissiontype" class="form-control form-control" readonly>
-                                              <option value="{{  Auth::user()->apptype }}">{{ Auth::user()->apptype }}</option>
+                                              <option value="<?php echo e(Auth::user()->apptype); ?>"><?php echo e(Auth::user()->apptype); ?></option>
                                                   
                                                </select>
                                             </div>
@@ -420,50 +422,44 @@
                                               <div class="form-group row">
 
 											                            <div class="col-sm-6 mb-3 mb-sm-0">                                                 
-                                                    @if($data)
+                                                    <?php if($data): ?>
                                                       <select name="session" id="session" class="form-control form-control" readonly>
-                                                       <option value="{{ $data[0]->activesession }}">{{ $data[0]->activesession }}</option>
-                                                    @else
+                                                       <option value="<?php echo e($data[0]->activesession); ?>"><?php echo e($data[0]->activesession); ?></option>
+                                                    <?php else: ?>
                                                     <select name="session" id="session" class="form-control form-control" required>
                                                        <option value="">Session</option>
-                                                            @foreach($ses as $ses)
-                                                              <option value="{{ $ses->name }}">{{ $ses->name }}</option>
-                                                            @endforeach
-                                                        @endif 
+                                                            <?php $__currentLoopData = $ses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ses): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                              <option value="<?php echo e($ses->name); ?>"><?php echo e($ses->name); ?></option>
+                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                        <?php endif; ?> 
                                                       </select>
                                                    </div>
 
-                                                     @if($apptype == 'PT')
+                                                     <?php if($apptype == 'PT'): ?>
                                                         <div class="col-sm-6 mb-3 mb-sm-0">
                                                     
                                                        
                                                           <select name="level" id="level" class="form-control form-control" required>
                                                                <option value="">level</option>
-                                                                  @foreach($levs as $levs)
-                                                                    <option value="{{ $levs->name }}">{{ $levs->name }}</option>
-                                                                  @endforeach
+                                                                  <?php $__currentLoopData = $levs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $levs): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                    <option value="<?php echo e($levs->name); ?>"><?php echo e($levs->name); ?></option>
+                                                                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                               
                                                         </div>
-                                                     @endif 
+                                                     <?php endif; ?> 
                                                
                                                 </div>
                                               <div class="form-group row">
 											                              <div class="col-sm-12 mb-3 mb-sm-0">
                                                         <label>Passport</label>
-                                                        <?php  $ses = str_replace("/","",Auth::user()->activesession);  ?>
-                                                          @if($result)
+                                                          <?php if($result): ?>
 
-                                                            <!-- <input type="file" value="{{ $result[0]->photo }}" 
-                                                            name="photo" class="form-control form-control"
-                                                            id="exampleRepeatPassword" placeholder="passport" required> -->
-
-                                                                   <img class="nav-user-photo" src="{{ asset('public/Passports/'.Auth::user()->apptype.$ses.'/'.Auth::user()->photo)}}" alt="Member's Photo" width="80px" height="70px" />
-                                                             <input type="file" name="photo" value="{{ $photo }}" class="form-control form-control"
+                                                            <input type="file" value="<?php echo e($result[0]->photo); ?>" name="photo" class="form-control form-control"
                                                             id="exampleRepeatPassword" placeholder="passport" required>
-                                                          @else
-                                                            <input type="file" name="photo" value="{{ $photo }}" class="form-control form-control"
+                                                          <?php else: ?>
+                                                            <input type="file" name="photo" value="<?php echo e($photo); ?>" class="form-control form-control"
                                                             id="exampleRepeatPassword" placeholder="passport" required>
-                                                          @endif
+                                                          <?php endif; ?>
                                                      </div>
                                                </div>
                                         <hr>
@@ -479,98 +475,98 @@
                                         <div class="form-group row">
 
                                             <div class="col-sm-6 mb-3 mb-sm-0">
-                                              @if($item)
-                                                 <input type="text" value="{{ $item[0]->othername }}" name="pfirstname" class="form-control form-control" id="exampleFirstName"
+                                              <?php if($item): ?>
+                                                 <input type="text" value="<?php echo e($item[0]->othername); ?>" name="pfirstname" class="form-control form-control" id="exampleFirstName"
                                                     placeholder="First Name" required>
-                                              @else
-                                                <input type="text" name="pfirstname" value="{{ $pfirstname }}" class="form-control form-control" id="exampleFirstName"
+                                              <?php else: ?>
+                                                <input type="text" name="pfirstname" value="<?php echo e($pfirstname); ?>" class="form-control form-control" id="exampleFirstName"
                                                     placeholder="First Name" required>
-                                               @endif       
+                                               <?php endif; ?>       
                                             </div>
 
 
                                             <div class="col-sm-6">
-                                                @if($item)
-                                                    <input type="text" value="{{ $item[0]->surname }}" name="psurname" class="form-control form-control" id="exampleLastName"
+                                                <?php if($item): ?>
+                                                    <input type="text" value="<?php echo e($item[0]->surname); ?>" name="psurname" class="form-control form-control" id="exampleLastName"
                                                     placeholder="SurName" required>
-                                                @else
-                                                     <input type="text" name="psurname" value="{{ $psurname }}" class="form-control form-control" id="exampleLastName"
+                                                <?php else: ?>
+                                                     <input type="text" name="psurname" value="<?php echo e($psurname); ?>" class="form-control form-control" id="exampleLastName"
                                                     placeholder="SurName" required>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                           @if($item)
+                                           <?php if($item): ?>
 
-                                             <input type="email" value="{{ $item[0]->email }}" name="pemail" class="form-control form-control" id="exampleInputEmail"
+                                             <input type="email" value="<?php echo e($item[0]->email); ?>" name="pemail" class="form-control form-control" id="exampleInputEmail"
                                                 placeholder="Email Address" required>
-                                           @else
-                                            <input type="email" name="pemail" value="{{ $pemail }}" class="form-control form-control" id="exampleInputEmail"
+                                           <?php else: ?>
+                                            <input type="email" name="pemail" value="<?php echo e($pemail); ?>" class="form-control form-control" id="exampleInputEmail"
                                                 placeholder="Email Address" required>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
                                         <div class="form-group">
-                                           @if($item)
-                                             <input type="text" value="{{ $item[0]->address }}" name="paddress" class="form-control form-control" id="exampleInputEmail"
+                                           <?php if($item): ?>
+                                             <input type="text" value="<?php echo e($item[0]->address); ?>" name="paddress" class="form-control form-control" id="exampleInputEmail"
                                                 placeholder="Home Address" required>
-                                           @else
-                                            <input type="text" name="paddress" value="{{ $paddress }}" class="form-control form-control" id="exampleInputEmail"
+                                           <?php else: ?>
+                                            <input type="text" name="paddress" value="<?php echo e($paddress); ?>" class="form-control form-control" id="exampleInputEmail"
                                                 placeholder="Home Address" required>
-                                           @endif
+                                           <?php endif; ?>
                                         </div>
                                         <div class="form-group row">
 
-                                          @if($item)
+                                          <?php if($item): ?>
                                               <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <select name="relation" id="" class="form-control form-control" required>
-                                                    <option value="{{ $item[0]->relation }}">{{ $item[0]->relation }}</option>
-                                                    @foreach($rel as $rel)
-                                                         <option value="{{ $rel->name }}">{{ $rel->name }}</option>
+                                                    <option value="<?php echo e($item[0]->relation); ?>"><?php echo e($item[0]->relation); ?></option>
+                                                    <?php $__currentLoopData = $rel; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                         <option value="<?php echo e($rel->name); ?>"><?php echo e($rel->name); ?></option>
                           
-                                                        @endforeach
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                 </select>
                                             </div>
-                                          @else
+                                          <?php else: ?>
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <select name="relation" id="" class="form-control form-control" required>
-                                                   @if($relation)
-                                                       <option value="{{ $relation }}">{{ $relation }}</option>
-                                                       @foreach($rel as $rel)
-                                                         <option value="{{ $rel->name }}">{{ $rel->name }}</option>
+                                                   <?php if($relation): ?>
+                                                       <option value="<?php echo e($relation); ?>"><?php echo e($relation); ?></option>
+                                                       <?php $__currentLoopData = $rel; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                         <option value="<?php echo e($rel->name); ?>"><?php echo e($rel->name); ?></option>
                           
-                                                        @endforeach
-                                                   @else
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                   <?php else: ?>
                                                       <option value="">Relationship</option>
-                                                   @endif
-                                                  @foreach($rel as $rel)
-                                                      <option value="{{ $rel->name }}">{{ $rel->name }}</option>
+                                                   <?php endif; ?>
+                                                  <?php $__currentLoopData = $rel; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                      <option value="<?php echo e($rel->name); ?>"><?php echo e($rel->name); ?></option>
                           
-                                                  @endforeach
+                                                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                 
                                                 </select>
                                             </div>
-                                            @endif
+                                            <?php endif; ?>
 
                                             <div class="col-sm-6">
-                                              @if($item)
-                                                <input type="text" value="{{ $item[0]->phone }}" name="pphone" class="form-control form-control"
+                                              <?php if($item): ?>
+                                                <input type="text" value="<?php echo e($item[0]->phone); ?>" name="pphone" class="form-control form-control"
                                                     id="exampleRepeatPassword" placeholder="Phone" required>
-                                              @else
-                                                <input type="text" name="pphone" value="{{ $pphone }}" class="form-control form-control"
+                                              <?php else: ?>
+                                                <input type="text" name="pphone" value="<?php echo e($pphone); ?>" class="form-control form-control"
                                                     id="exampleRepeatPassword" placeholder="Phone" required>
-                                              @endif
+                                              <?php endif; ?>
                                             </div>
 
                                         </div>
 
-                                        @if($result)
-                                             <!-- <a href="{{ route('ugpreQ') }}" class="btn btn-primary" style="background:#c0a062;border-color:#da251d;color=000000">
+                                        <?php if($result): ?>
+                                             <!-- <a href="<?php echo e(route('ugpreQ')); ?>" class="btn btn-primary" style="background:#c0a062;border-color:#da251d;color=000000">
                                                   Update Info To Proceed                                            </a> -->
                                                   <button class="btn px-4" type="submit" style="background:#c0a062;color:white">  Update Info To Proceed</button>
-                                        @else
+                                        <?php else: ?>
                                            <button class="btn px-4" type="submit" style="background:#c0a062;color:white"> Submit Info</button>
 
-                                        @endif
+                                        <?php endif; ?>
                                         
                                         <hr>
 
@@ -592,16 +588,6 @@
   {
      $fa = DB::table('faculty')->where('facultyid', $fac)->first();
      return $fa->Faculty;
-  }
-  
-  function GetStateID($sta)
-  {
-      $s = DB::table('statelist')->where('name', $sta)
-                                 ->first();
-      if($s)
-      {
-          return $s->stateid;
-      }
   }
 ?>
 <script type='text/javascript'>
@@ -731,4 +717,6 @@ $(document).ready(function(){
 
 
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.appdashboard', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\xampp\htdocs\apply\resources\views/ugbiodata.blade.php ENDPATH**/ ?>

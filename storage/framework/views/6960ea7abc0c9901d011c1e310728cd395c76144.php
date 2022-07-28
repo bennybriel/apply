@@ -1,5 +1,4 @@
-@extends('layouts.applogReg')
-@section('content')
+<?php $__env->startSection('content'); ?>
 <?php
   //dd($ses);
 ?>
@@ -45,7 +44,7 @@
 </style>
 
 
-<meta name="csrf-token" content="{{ csrf_token() }}" />
+<meta name="csrf-token" content="<?php echo e(csrf_token()); ?>" />
 <script src="js/jquery-3.3.1.js"></script>
      <div class="container">
         <div class="row" style="align:center">
@@ -74,31 +73,33 @@
 				        <div class="alert alert-danger alert-dismissible" id="failure" style="display:none;">
 	                   <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
 	             </div>
-              @if(Session::has('error'))
+              <?php if(Session::has('error')): ?>
                                                         <div class="alert alert-danger">
-                                                        {{ Session::get('error') }}
-                                                        @php
+                                                        <?php echo e(Session::get('error')); ?>
+
+                                                        <?php
                                                             Session::forget('error');
-                                                        @endphp
+                                                        ?>
                                                         </div>
-                                                   @endif
-                                                        @if(Session::has('success'))
+                                                   <?php endif; ?>
+                                                        <?php if(Session::has('success')): ?>
                                                      <div class="alert alert-success">
-                                                        {{ Session::get('success') }}
-                                                        @php
+                                                        <?php echo e(Session::get('success')); ?>
+
+                                                        <?php
                                                             Session::forget('success');
-                                                        @endphp
+                                                        ?>
 
                                                         </div>
 
-                                                @endif
+                                                <?php endif; ?>
               <div class="input-group mb-3">
                     <div class="input-group-prepend">
                       <span class="input-group-text">
                         <i class="icon-user"></i>
                         </span>
                     </div>
-                   <input class="form-control" type="text" name="surname" id="surname" placeholder="Surname" value="{{ old('surname') }}" required>
+                   <input class="form-control" type="text" name="surname" id="surname" placeholder="Surname" value="<?php echo e(old('surname')); ?>" required>
                    <span class="text-danger" id="name-surname"></span>
                   </div>
                 <div class="input-group mb-3">
@@ -152,9 +153,9 @@
                 </div>
                 <select class="form-control" name="session" id="session" required>
                   <option value="">Select Session</option>
-                  @foreach($lst as $lst)
-                      <option value="{{ $lst->name }}">{{ $lst->name }}</option>
-                  @endforeach
+                  <?php $__currentLoopData = $lst; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lst): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                      <option value="<?php echo e($lst->name); ?>"><?php echo e($lst->name); ?></option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                 </select>
                
@@ -275,5 +276,7 @@ $('#SaveRegister').on('click', function(e)
  </script>
 
 
-   @endsection
+   <?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layouts.applogReg', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\xampp\htdocs\apply\resources\views/reg.blade.php ENDPATH**/ ?>

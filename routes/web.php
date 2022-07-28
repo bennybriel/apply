@@ -40,7 +40,7 @@ Route::post('/UpdateStudentPassword', [App\Http\Controllers\SignInController::cl
 //Registration Controller
 Route::get('/logon', [App\Http\Controllers\RegistrationController::class, 'logon'])->name('logon');
 Route::get('/Reg', [App\Http\Controllers\RegistrationController::class, 'Reg'])->name('reg');
-Route::post('/SubmitRegistration', [App\Http\Controllers\RegistrationController::class, 'SubmitRegistration'])->name('SubmitRegistration');
+Route::post('/SignUpNow', [App\Http\Controllers\RegistrationController::class, 'SignUpNow'])->name('SignUpNow');
 Route::get('/SignupResponse', [App\Http\Controllers\RegistrationController::class, 'signupResponse'])->name('signupResponse');
 Route::get('/ActivatedAccountResponse', [App\Http\Controllers\RegistrationController::class, 'ActivatedAccountResponse'])->name('accountActivated');
 Route::get('/FinishingUp/{id}', [App\Http\Controllers\RegistrationController::class, 'FinishingUp'])->name('FinishingUp');
@@ -146,7 +146,7 @@ Route::post('/ActivateApp', [App\Http\Controllers\AdministratorController::class
 #Deleye App Activation
 Route::get('/RemoveAppActivation/{id}', [App\Http\Controllers\AdministratorController::class, 'RemoveAppActivation'])->name('RemoveAppActivation');
 #Update App Activation
-Route::post('/UpdateAppActivation/{id}', [App\Http\Controllers\AdministratorController::class, 'UpdateAppActivation'])->name('UpdateAppActivation');
+Route::post('/UpdateAppActivation', [App\Http\Controllers\AdministratorController::class, 'UpdateAppActivation'])->name('UpdateAppActivation');
 Route::get('/RegConfirmation', [App\Http\Controllers\ReferenceEmailController::class, 'RegConfirmation'])->name('registrationConfrimationPage');
 #Validate UTME Number
 Route::get('/ValidateUTME', [App\Http\Controllers\RegistrationController::class, 'ValidateUTME'])->name('validateUTME');

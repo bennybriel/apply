@@ -377,16 +377,12 @@ class SignInController extends Controller
     }
     public function AuthIn(Request $request)
     {
-                $data = $request->session()->all();
-                $request->session()->forget('data');
-                Auth::logout();
-                $request->session()->flush();
                
-          if(Auth::check() && Auth::user()->id > 0)
-          {
-               /// dd($data);
-                return back()->with('error', 'Sorry, There Is An Active User, Please Logout The Current User And Continue.');
-          }
+        //   if(Auth::check() && Auth::user()->id > 0)
+        //   {
+        //        /// dd($data);
+        //         return back()->with('error', 'Sorry, There Is An Active User, Please Logout The Current User And Continue.');
+        //   }
       
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password]))
         {
